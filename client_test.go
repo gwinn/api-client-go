@@ -612,6 +612,91 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_CustomerSubscriptions(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	subscriptions := []CustomerSubscriptionEdit{
+		{
+			Channel:      "email",
+			Subscription: "news",
+			Active:       false,
+			MessageID:    123,
+		},
+		{
+			Channel: "sms",
+			Active:  true,
+		},
+	}
+
+	str, _ := json.Marshal(subscriptions)
+
+	p := url.Values{
+		"by":            {ByExternalID},
+		"site":          {"site"},
+		"subscriptions": {string(str)},
+	}
+
+	gock.New(crmURL).
+		Post("/api/v5/customers/customer-ext-id/subscriptions").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	data, status, err := c.CustomerSubscriptions("customer-ext-id", ByExternalID, subscriptions, "site")
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_CustomerSubscriptions_Fail(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	subscriptions := []CustomerSubscriptionEdit{{
+		Channel: "email",
+		Active:  false,
+	}}
+
+	str, _ := json.Marshal(subscriptions)
+
+	p := url.Values{
+		"by":            {ByID},
+		"subscriptions": {string(str)},
+	}
+
+	gock.New(crmURL).
+		Post("/api/v5/customers/123/subscriptions").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
+
+	data, status, err := c.CustomerSubscriptions("123", ByID, subscriptions)
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if status < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
 func TestClient_CustomersUpload(t *testing.T) {
 	c := client()
 	customers := make([]Customer, 3)

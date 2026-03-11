@@ -1008,6 +1008,73 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	return resp, status, nil
 }
 
+// CustomerSubscriptions changes customer's mailing subscriptions
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-customers-externalId-subscriptions
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomerSubscriptions(
+//		"customer-external-id",
+//		retailcrm.ByExternalID,
+//		[]retailcrm.CustomerSubscriptionEdit{
+//			{
+//				Channel:      "email",
+//				Subscription: "news",
+//				Active:       false,
+//				MessageID:    123,
+//			},
+//			{
+//				Channel: "sms",
+//				Active:  true,
+//			},
+//		},
+//		"site",
+//	)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Printf("%v\n", data.Success)
+//	}
+func (c *Client) CustomerSubscriptions(
+	id, by string,
+	subscriptions []CustomerSubscriptionEdit,
+	site ...string,
+) (SuccessfulResponse, int, error) {
+	var resp SuccessfulResponse
+	var context = checkBy(by)
+
+	subscriptionsJSON, _ := json.Marshal(&subscriptions)
+
+	p := url.Values{
+		"by":            {context},
+		"subscriptions": {string(subscriptionsJSON)},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers/%s/subscriptions", id), p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // CorporateCustomers returns list of corporate customers matched the specified filter
 //
 // For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate

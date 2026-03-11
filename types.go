@@ -139,42 +139,69 @@ Customer related types
 
 // Customer type.
 type Customer struct {
-	ID                           int            `json:"id,omitempty"`
-	ExternalID                   string         `json:"externalId,omitempty"`
-	FirstName                    string         `json:"firstName,omitempty"`
-	LastName                     string         `json:"lastName,omitempty"`
-	Patronymic                   string         `json:"patronymic,omitempty"`
-	Sex                          string         `json:"sex,omitempty"`
-	Email                        string         `json:"email,omitempty"`
-	Phones                       []Phone        `json:"phones,omitempty"`
-	Address                      *Address       `json:"address,omitempty"`
-	CreatedAt                    string         `json:"createdAt,omitempty"`
-	Birthday                     string         `json:"birthday,omitempty"`
-	ManagerID                    int            `json:"managerId,omitempty"`
-	Vip                          bool           `json:"vip,omitempty"`
-	Bad                          bool           `json:"bad,omitempty"`
-	IsContact                    bool           `json:"isContact,omitempty"`
-	Site                         string         `json:"site,omitempty"`
-	Source                       *Source        `json:"source,omitempty"`
-	Contragent                   *Contragent    `json:"contragent,omitempty"`
-	PersonalDiscount             float32        `json:"personalDiscount,omitempty"`
-	CumulativeDiscount           float32        `json:"cumulativeDiscount,omitempty"`
-	DiscountCardNumber           string         `json:"discountCardNumber,omitempty"`
-	EmailMarketingUnsubscribedAt string         `json:"emailMarketingUnsubscribedAt,omitempty"`
-	AvgMarginSumm                float32        `json:"avgMarginSumm,omitempty"`
-	MarginSumm                   float32        `json:"marginSumm,omitempty"`
-	TotalSumm                    float32        `json:"totalSumm,omitempty"`
-	AverageSumm                  float32        `json:"averageSumm,omitempty"`
-	OrdersCount                  int            `json:"ordersCount,omitempty"`
-	CostSumm                     float32        `json:"costSumm,omitempty"`
-	MaturationTime               int            `json:"maturationTime,omitempty"`
-	FirstClientID                string         `json:"firstClientId,omitempty"`
-	LastClientID                 string         `json:"lastClientId,omitempty"`
-	BrowserID                    string         `json:"browserId,omitempty"`
-	MgCustomerID                 string         `json:"mgCustomerId,omitempty"`
-	PhotoURL                     string         `json:"photoUrl,omitempty"`
-	CustomFields                 CustomFieldMap `json:"customFields,omitempty"`
-	Tags                         []Tag          `json:"tags,omitempty"`
+	ID                           int                    `json:"id,omitempty"`
+	ExternalID                   string                 `json:"externalId,omitempty"`
+	FirstName                    string                 `json:"firstName,omitempty"`
+	LastName                     string                 `json:"lastName,omitempty"`
+	Patronymic                   string                 `json:"patronymic,omitempty"`
+	Sex                          string                 `json:"sex,omitempty"`
+	Email                        string                 `json:"email,omitempty"`
+	Phones                       []Phone                `json:"phones,omitempty"`
+	Address                      *Address               `json:"address,omitempty"`
+	CreatedAt                    string                 `json:"createdAt,omitempty"`
+	Birthday                     string                 `json:"birthday,omitempty"`
+	ManagerID                    int                    `json:"managerId,omitempty"`
+	Vip                          bool                   `json:"vip,omitempty"`
+	Bad                          bool                   `json:"bad,omitempty"`
+	IsContact                    bool                   `json:"isContact,omitempty"`
+	Site                         string                 `json:"site,omitempty"`
+	Source                       *Source                `json:"source,omitempty"`
+	Contragent                   *Contragent            `json:"contragent,omitempty"`
+	PersonalDiscount             float32                `json:"personalDiscount,omitempty"`
+	CumulativeDiscount           float32                `json:"cumulativeDiscount,omitempty"`
+	DiscountCardNumber           string                 `json:"discountCardNumber,omitempty"`
+	EmailMarketingUnsubscribedAt string                 `json:"emailMarketingUnsubscribedAt,omitempty"`
+	AvgMarginSumm                float32                `json:"avgMarginSumm,omitempty"`
+	MarginSumm                   float32                `json:"marginSumm,omitempty"`
+	TotalSumm                    float32                `json:"totalSumm,omitempty"`
+	AverageSumm                  float32                `json:"averageSumm,omitempty"`
+	OrdersCount                  int                    `json:"ordersCount,omitempty"`
+	CostSumm                     float32                `json:"costSumm,omitempty"`
+	MaturationTime               int                    `json:"maturationTime,omitempty"`
+	FirstClientID                string                 `json:"firstClientId,omitempty"`
+	LastClientID                 string                 `json:"lastClientId,omitempty"`
+	BrowserID                    string                 `json:"browserId,omitempty"`
+	MgCustomerID                 string                 `json:"mgCustomerId,omitempty"`
+	PhotoURL                     string                 `json:"photoUrl,omitempty"`
+	CustomFields                 CustomFieldMap         `json:"customFields,omitempty"`
+	Tags                         []Tag                  `json:"tags,omitempty"`
+	CustomerSubscriptions        []CustomerSubscription `json:"customerSubscriptions,omitempty"`
+}
+
+// CustomerSubscription type.
+type CustomerSubscription struct {
+	Subscription *Subscription `json:"subscription,omitempty"`
+	Subscribed   bool          `json:"subscribed,omitempty"`
+	ChangedAt    string        `json:"changedAt,omitempty"`
+}
+
+// Subscription type.
+type Subscription struct {
+	ID            int    `json:"id,omitempty"`
+	Channel       string `json:"channel,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Code          string `json:"code,omitempty"`
+	Active        bool   `json:"active,omitempty"`
+	AutoSubscribe bool   `json:"autoSubscribe,omitempty"`
+	Ordering      int    `json:"ordering,omitempty"`
+}
+
+// CustomerSubscriptionEdit type.
+type CustomerSubscriptionEdit struct {
+	Channel      string `json:"channel,omitempty"`
+	Subscription string `json:"subscription,omitempty"`
+	Active       bool   `json:"active"`
+	MessageID    int    `json:"messageId,omitempty"`
 }
 
 // CorporateCustomer type.
