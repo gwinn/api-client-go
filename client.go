@@ -39,7 +39,7 @@ func (c *Client) WithHTTPClient(client *http.Client) *Client {
 	return c
 }
 
-// WithContext sets context.Context which, if cancelled, will terminate all active API calls.
+// WithContext sets context.Context which, if canceled, will terminate all active API calls.
 func (c *Client) WithContext(ctx context.Context) *Client {
 	c.ctx = ctx
 	return c
@@ -375,6 +375,15 @@ func fillSite(p *url.Values, site []string) {
 	}
 }
 
+func marshalToString(v interface{}) (string, error) {
+	data, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
 // APIVersions get all available API versions for exact account
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-api-versions
@@ -548,12 +557,19 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	combineJSONIn, _ := json.Marshal(&customers)
-	combineJSONOut, _ := json.Marshal(&resultCustomer)
+	combineJSONIn, err := marshalToString(&customers)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	combineJSONOut, err := marshalToString(&resultCustomer)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customers":      {string(combineJSONIn)},
-		"resultCustomer": {string(combineJSONOut)},
+		"customers":      {combineJSONIn},
+		"resultCustomer": {combineJSONOut},
 	}
 
 	data, status, err := c.PostRequest("/customers/combine", p)
@@ -603,10 +619,13 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 
-	customerJSON, _ := json.Marshal(&customer)
+	customerJSON, err := marshalToString(&customer)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customer": {string(customerJSON)},
+		"customer": {customerJSON},
 	}
 
 	fillSite(&p, site)
@@ -647,10 +666,13 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	customersJSON, _ := json.Marshal(&customers)
+	customersJSON, err := marshalToString(&customers)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customers": {string(customersJSON)},
+		"customers": {customersJSON},
 	}
 
 	data, status, err := c.PostRequest("/customers/fix-external-ids", p)
@@ -783,10 +805,13 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, err
 func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	noteJSON, _ := json.Marshal(&note)
+	noteJSON, err := marshalToString(&note)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"note": {string(noteJSON)},
+		"note": {noteJSON},
 	}
 
 	fillSite(&p, site)
@@ -881,10 +906,13 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 func (c *Client) CustomersUpload(customers []Customer, site ...string) (CustomersUploadResponse, int, error) {
 	var resp CustomersUploadResponse
 
-	uploadJSON, _ := json.Marshal(&customers)
+	uploadJSON, err := marshalToString(&customers)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customers": {string(uploadJSON)},
+		"customers": {uploadJSON},
 	}
 
 	fillSite(&p, site)
@@ -927,14 +955,14 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 //	if data.Success == true {
 //		log.Printf("%v\n", data.Customer)
 //	}
-func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
+func (c *Client) Customer(customerID, by, site string) (CustomerResponse, int, error) {
 	var resp CustomerResponse
 	var context = checkBy(by)
 
 	fw := CustomerRequest{context, site}
 	params, _ := query.Values(fw)
 
-	data, status, err := c.GetRequest(fmt.Sprintf("/customers/%s?%s", id, params.Encode()))
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers/%s?%s", customerID, params.Encode()))
 	if err != nil {
 		return resp, status, err
 	}
@@ -986,11 +1014,14 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 		uid = customer.ExternalID
 	}
 
-	customerJSON, _ := json.Marshal(&customer)
+	customerJSON, err := marshalToString(&customer)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":       {context},
-		"customer": {string(customerJSON)},
+		"customer": {customerJSON},
 	}
 
 	fillSite(&p, site)
@@ -1046,23 +1077,26 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 //		log.Printf("%v\n", data.Success)
 //	}
 func (c *Client) CustomerSubscriptions(
-	id, by string,
+	customerID, by string,
 	subscriptions []CustomerSubscriptionEdit,
 	site ...string,
 ) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 	var context = checkBy(by)
 
-	subscriptionsJSON, _ := json.Marshal(&subscriptions)
+	subscriptionsJSON, err := marshalToString(&subscriptions)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":            {context},
-		"subscriptions": {string(subscriptionsJSON)},
+		"subscriptions": {subscriptionsJSON},
 	}
 
 	fillSite(&p, site)
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/customers/%s/subscriptions", id), p)
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers/%s/subscriptions", customerID), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -1147,10 +1181,13 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 ) {
 	var resp CorporateCustomerChangeResponse
 
-	customerJSON, _ := json.Marshal(&customer)
+	customerJSON, err := marshalToString(&customer)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customerCorporate": {string(customerJSON)},
+		"customerCorporate": {customerJSON},
 	}
 
 	fillSite(&p, site)
@@ -1191,10 +1228,13 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	customersJSON, _ := json.Marshal(&customers)
+	customersJSON, err := marshalToString(&customers)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customersCorporate": {string(customersJSON)},
+		"customersCorporate": {customersJSON},
 	}
 
 	data, status, err := c.PostRequest("/customers-corporate/fix-external-ids", p)
@@ -1330,10 +1370,13 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	noteJSON, _ := json.Marshal(&note)
+	noteJSON, err := marshalToString(&note)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"note": {string(noteJSON)},
+		"note": {noteJSON},
 	}
 
 	fillSite(&p, site)
@@ -1425,10 +1468,13 @@ func (c *Client) CorporateCustomersUpload(
 ) (CorporateCustomersUploadResponse, int, error) {
 	var resp CorporateCustomersUploadResponse
 
-	uploadJSON, _ := json.Marshal(&customers)
+	uploadJSON, err := marshalToString(&customers)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customersCorporate": {string(uploadJSON)},
+		"customersCorporate": {uploadJSON},
 	}
 
 	fillSite(&p, site)
@@ -1566,20 +1612,23 @@ func (c *Client) CorporateCustomerAddresses(
 //		fmt.Printf("%v", data.ID)
 //	}
 func (c *Client) CorporateCustomerAddressesCreate(
-	id string, by string, address CorporateCustomerAddress, site ...string,
+	customerID string, customerBy string, address CorporateCustomerAddress, site ...string,
 ) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	addressJSON, _ := json.Marshal(&address)
+	addressJSON, err := marshalToString(&address)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"address": {string(addressJSON)},
-		"by":      {checkBy(by)},
+		"address": {addressJSON},
+		"by":      {checkBy(customerBy)},
 	}
 
 	fillSite(&p, site)
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/create", id), p)
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/create", customerID), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -1639,12 +1688,15 @@ func (c *Client) CorporateCustomerAddressesEdit(
 		uid = address.ExternalID
 	}
 
-	addressJSON, _ := json.Marshal(&address)
+	addressJSON, err := marshalToString(&address)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":       {customerBy},
 		"entityBy": {entityBy},
-		"address":  {string(addressJSON)},
+		"address":  {addressJSON},
 	}
 
 	fillSite(&p, site)
@@ -1736,20 +1788,23 @@ func (c *Client) CorporateCustomerCompanies(
 //		fmt.Printf("%v", data.ID)
 //	}
 func (c *Client) CorporateCustomerCompaniesCreate(
-	id string, by string, company Company, site ...string,
+	customerID string, customerBy string, company Company, site ...string,
 ) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	companyJSON, _ := json.Marshal(&company)
+	companyJSON, err := marshalToString(&company)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"company": {string(companyJSON)},
-		"by":      {checkBy(by)},
+		"company": {companyJSON},
+		"by":      {checkBy(customerBy)},
 	}
 
 	fillSite(&p, site)
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/create", id), p)
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/create", customerID), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -1809,12 +1864,15 @@ func (c *Client) CorporateCustomerCompaniesEdit(
 		uid = company.ExternalID
 	}
 
-	addressJSON, _ := json.Marshal(&company)
+	addressJSON, err := marshalToString(&company)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":       {customerBy},
 		"entityBy": {entityBy},
-		"company":  {string(addressJSON)},
+		"company":  {addressJSON},
 	}
 
 	fillSite(&p, site)
@@ -1911,20 +1969,23 @@ func (c *Client) CorporateCustomerContacts(
 //		fmt.Printf("%v", data.ID)
 //	}
 func (c *Client) CorporateCustomerContactsCreate(
-	id string, by string, contact CorporateCustomerContact, site ...string,
+	customerID string, customerBy string, contact CorporateCustomerContact, site ...string,
 ) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	companyJSON, _ := json.Marshal(&contact)
+	companyJSON, err := marshalToString(&contact)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"contact": {string(companyJSON)},
-		"by":      {checkBy(by)},
+		"contact": {companyJSON},
+		"by":      {checkBy(customerBy)},
 	}
 
 	fillSite(&p, site)
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/create", id), p)
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/create", customerID), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -1981,12 +2042,15 @@ func (c *Client) CorporateCustomerContactsEdit(
 		uid = contact.Customer.ExternalID
 	}
 
-	addressJSON, _ := json.Marshal(&contact)
+	addressJSON, err := marshalToString(&contact)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":       {customerBy},
 		"entityBy": {entityBy},
-		"contact":  {string(addressJSON)},
+		"contact":  {addressJSON},
 	}
 
 	fillSite(&p, site)
@@ -2045,11 +2109,14 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 		uid = customer.ExternalID
 	}
 
-	customerJSON, _ := json.Marshal(&customer)
+	customerJSON, err := marshalToString(&customer)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":                {context},
-		"customerCorporate": {string(customerJSON)},
+		"customerCorporate": {customerJSON},
 	}
 
 	fillSite(&p, site)
@@ -2414,10 +2481,13 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 ) {
 	var resp SuccessfulResponse
 
-	updateJSON, _ := json.Marshal(&parameters)
+	updateJSON, err := marshalToString(&parameters)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"statusUpdate": {string(updateJSON)},
+		"statusUpdate": {updateJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/delivery/generic/%s/tracking", subcode), p)
@@ -2512,11 +2582,14 @@ func (c *Client) DeliveryShipmentCreate(
 	shipment DeliveryShipment, deliveryType string, site ...string,
 ) (DeliveryShipmentUpdateResponse, int, error) {
 	var resp DeliveryShipmentUpdateResponse
-	updateJSON, _ := json.Marshal(&shipment)
+	updateJSON, err := marshalToString(&shipment)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"deliveryType":     {deliveryType},
-		"deliveryShipment": {string(updateJSON)},
+		"deliveryShipment": {updateJSON},
 	}
 
 	fillSite(&p, site)
@@ -2598,10 +2671,13 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	DeliveryShipmentUpdateResponse, int, error,
 ) {
 	var resp DeliveryShipmentUpdateResponse
-	updateJSON, _ := json.Marshal(&shipment)
+	updateJSON, err := marshalToString(&shipment)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"deliveryShipment": {string(updateJSON)},
+		"deliveryShipment": {updateJSON},
 	}
 
 	fillSite(&p, site)
@@ -3010,9 +3086,12 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 	IntegrationModuleEditResponse, int, error,
 ) {
 	var resp IntegrationModuleEditResponse
-	updateJSON, _ := json.Marshal(&integrationModule)
+	updateJSON, err := marshalToString(&integrationModule)
+	if err != nil {
+		return resp, 0, err
+	}
 
-	p := url.Values{"integrationModule": {string(updateJSON)}}
+	p := url.Values{"integrationModule": {updateJSON}}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code), p)
 	if err != nil {
@@ -3052,10 +3131,13 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 //	}
 func (c *Client) UpdateScopes(code string, request ScopesRequired) (UpdateScopesResponse, int, error) {
 	var resp UpdateScopesResponse
-	updateJSON, _ := json.Marshal(&request)
+	updateJSON, err := marshalToString(&request)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"requires": {string(updateJSON)},
+		"requires": {updateJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/integration-modules/%s/update-scopes", code), p)
@@ -3130,13 +3212,20 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, error) {
 func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (OperationResponse, int, error) {
 	var resp OperationResponse
 
-	combineJSONIn, _ := json.Marshal(&order)
-	combineJSONOut, _ := json.Marshal(&resultOrder)
+	combineJSONIn, err := marshalToString(&order)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	combineJSONOut, err := marshalToString(&resultOrder)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"technique":   {technique},
-		"order":       {string(combineJSONIn)},
-		"resultOrder": {string(combineJSONOut)},
+		"order":       {combineJSONIn},
+		"resultOrder": {combineJSONOut},
 	}
 
 	data, status, err := c.PostRequest("/orders/combine", p)
@@ -3181,10 +3270,13 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 //	}
 func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, int, error) {
 	var resp OrderCreateResponse
-	orderJSON, _ := json.Marshal(&order)
+	orderJSON, err := marshalToString(&order)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"order": {string(orderJSON)},
+		"order": {orderJSON},
 	}
 
 	fillSite(&p, site)
@@ -3229,10 +3321,13 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	ordersJSON, _ := json.Marshal(&orders)
+	ordersJSON, err := marshalToString(&orders)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"orders": {string(ordersJSON)},
+		"orders": {ordersJSON},
 	}
 
 	data, status, err := c.PostRequest("/orders/fix-external-ids", p)
@@ -3317,10 +3412,13 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	paymentJSON, _ := json.Marshal(&payment)
+	paymentJSON, err := marshalToString(&payment)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"payment": {string(paymentJSON)},
+		"payment": {paymentJSON},
 	}
 
 	fillSite(&p, site)
@@ -3407,11 +3505,14 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 		uid = payment.ExternalID
 	}
 
-	paymentJSON, _ := json.Marshal(&payment)
+	paymentJSON, err := marshalToString(&payment)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":      {context},
-		"payment": {string(paymentJSON)},
+		"payment": {paymentJSON},
 	}
 
 	fillSite(&p, site)
@@ -3508,10 +3609,13 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadResponse, int, error) {
 	var resp OrdersUploadResponse
 
-	uploadJSON, _ := json.Marshal(&orders)
+	uploadJSON, err := marshalToString(&orders)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"orders": {string(uploadJSON)},
+		"orders": {uploadJSON},
 	}
 
 	fillSite(&p, site)
@@ -3606,11 +3710,14 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 		uid = order.ExternalID
 	}
 
-	orderJSON, _ := json.Marshal(&order)
+	orderJSON, err := marshalToString(&order)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
 		"by":    {context},
-		"order": {string(orderJSON)},
+		"order": {orderJSON},
 	}
 
 	fillSite(&p, site)
@@ -3694,10 +3801,13 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 //	}
 func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 	var resp CreateResponse
-	packJSON, _ := json.Marshal(&pack)
+	packJSON, err := marshalToString(&pack)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"pack": {string(packJSON)},
+		"pack": {packJSON},
 	}
 
 	data, status, err := c.PostRequest("/orders/packs/create", p)
@@ -3842,10 +3952,13 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	packJSON, _ := json.Marshal(&pack)
+	packJSON, err := marshalToString(&pack)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"pack": {string(packJSON)},
+		"pack": {packJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/edit", pack.ID), p)
@@ -3922,10 +4035,13 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&costGroup)
+	objJSON, err := marshalToString(&costGroup)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"costGroup": {string(objJSON)},
+		"costGroup": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-groups/%s/edit", costGroup.Code), p)
@@ -3983,10 +4099,13 @@ func (c *Client) CostItems() (CostItemsResponse, int, error) {
 func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&costItem)
+	objJSON, err := marshalToString(&costItem)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"costItem": {string(objJSON)},
+		"costItem": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-items/%s/edit", costItem.Code), p)
@@ -4050,10 +4169,13 @@ func (c *Client) Couriers() (CouriersResponse, int, error) {
 func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	objJSON, _ := json.Marshal(&courier)
+	objJSON, err := marshalToString(&courier)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"courier": {string(objJSON)},
+		"courier": {objJSON},
 	}
 
 	data, status, err := c.PostRequest("/reference/couriers/create", p)
@@ -4092,10 +4214,13 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&courier)
+	objJSON, err := marshalToString(&courier)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"courier": {string(objJSON)},
+		"courier": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/couriers/%d/edit", courier.ID), p)
@@ -4153,10 +4278,13 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&deliveryService)
+	objJSON, err := marshalToString(&deliveryService)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"deliveryService": {string(objJSON)},
+		"deliveryService": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-services/%s/edit", deliveryService.Code), p)
@@ -4216,10 +4344,13 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&deliveryType)
+	objJSON, err := marshalToString(&deliveryType)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"deliveryType": {string(objJSON)},
+		"deliveryType": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-types/%s/edit", deliveryType.Code), p)
@@ -4277,10 +4408,13 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&legalEntity)
+	objJSON, err := marshalToString(&legalEntity)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"legalEntity": {string(objJSON)},
+		"legalEntity": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/legal-entities/%s/edit", legalEntity.Code), p)
@@ -4339,10 +4473,13 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&orderMethod)
+	objJSON, err := marshalToString(&orderMethod)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"orderMethod": {string(objJSON)},
+		"orderMethod": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-methods/%s/edit", orderMethod.Code), p)
@@ -4401,10 +4538,13 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&orderType)
+	objJSON, err := marshalToString(&orderType)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"orderType": {string(objJSON)},
+		"orderType": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-types/%s/edit", orderType.Code), p)
@@ -4445,10 +4585,13 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&paymentStatus)
+	objJSON, err := marshalToString(&paymentStatus)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"paymentStatus": {string(objJSON)},
+		"paymentStatus": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-statuses/%s/edit", paymentStatus.Code), p)
@@ -4489,10 +4632,13 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&paymentType)
+	objJSON, err := marshalToString(&paymentType)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"paymentType": {string(objJSON)},
+		"paymentType": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-types/%s/edit", paymentType.Code), p)
@@ -4533,10 +4679,13 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&priceType)
+	objJSON, err := marshalToString(&priceType)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"priceType": {string(objJSON)},
+		"priceType": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/price-types/%s/edit", priceType.Code), p)
@@ -4577,10 +4726,13 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&productStatus)
+	objJSON, err := marshalToString(&productStatus)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"productStatus": {string(objJSON)},
+		"productStatus": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/product-statuses/%s/edit", productStatus.Code), p)
@@ -4621,10 +4773,13 @@ func (c *Client) Sites() (SitesResponse, int, error) {
 func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&site)
+	objJSON, err := marshalToString(&site)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"site": {string(objJSON)},
+		"site": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/sites/%s/edit", site.Code), p)
@@ -4681,16 +4836,19 @@ func (c *Client) Statuses() (StatusesResponse, int, error) {
 // StatusEdit order status create/edit
 //
 // For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit.
-func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
+func (c *Client) StatusEdit(statusItem Status) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&st)
-
-	p := url.Values{
-		"status": {string(objJSON)},
+	objJSON, err := marshalToString(&statusItem)
+	if err != nil {
+		return resp, 0, err
 	}
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/reference/statuses/%s/edit", st.Code), p)
+	p := url.Values{
+		"status": {objJSON},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/reference/statuses/%s/edit", statusItem.Code), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -4728,10 +4886,13 @@ func (c *Client) Stores() (StoresResponse, int, error) {
 func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&store)
+	objJSON, err := marshalToString(&store)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"store": {string(objJSON)},
+		"store": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/stores/%s/edit", store.Code), p)
@@ -4772,10 +4933,13 @@ func (c *Client) Units() (UnitsResponse, int, error) {
 func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	objJSON, _ := json.Marshal(&unit)
+	objJSON, err := marshalToString(&unit)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"unit": {string(objJSON)},
+		"unit": {objJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/units/%s/edit", unit.Code), p)
@@ -4949,10 +5113,13 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (StoreUploadResponse, int, error) {
 	var resp StoreUploadResponse
 
-	uploadJSON, _ := json.Marshal(&inventories)
+	uploadJSON, err := marshalToString(&inventories)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"offers": {string(uploadJSON)},
+		"offers": {uploadJSON},
 	}
 
 	fillSite(&p, site)
@@ -5003,10 +5170,13 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, int, error) {
 	var resp StoreUploadResponse
 
-	uploadJSON, _ := json.Marshal(&prices)
+	uploadJSON, err := marshalToString(&prices)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"prices": {string(uploadJSON)},
+		"prices": {uploadJSON},
 	}
 
 	data, status, err := c.PostRequest("/store/prices/upload", p)
@@ -5221,10 +5391,13 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 //	}
 func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
-	taskJSON, _ := json.Marshal(&task)
+	taskJSON, err := marshalToString(&task)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"task": {string(taskJSON)},
+		"task": {taskJSON},
 	}
 
 	fillSite(&p, site)
@@ -5303,10 +5476,13 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 	var resp SuccessfulResponse
 	var uid = strconv.Itoa(task.ID)
 
-	taskJSON, _ := json.Marshal(&task)
+	taskJSON, err := marshalToString(&task)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"task": {string(taskJSON)},
+		"task": {taskJSON},
 	}
 
 	fillSite(&p, site)
@@ -5468,21 +5644,21 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 		"status": {status},
 	}
 
-	data, st, err := c.PostRequest(fmt.Sprintf("/users/%d/status", id), p)
+	data, statusCode, err := c.PostRequest(fmt.Sprintf("/users/%d/status", id), p)
 	if err != nil {
-		return resp, st, err
+		return resp, statusCode, err
 	}
 
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
-		return resp, st, err
+		return resp, statusCode, err
 	}
 
 	if !resp.Success {
-		return resp, st, CreateAPIError(data)
+		return resp, statusCode, CreateAPIError(data)
 	}
 
-	return resp, st, nil
+	return resp, statusCode, nil
 }
 
 // StaticticsUpdate updates statistics
@@ -5585,10 +5761,13 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	costJSON, _ := json.Marshal(&cost)
+	costJSON, err := marshalToString(&cost)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"cost": {string(costJSON)},
+		"cost": {costJSON},
 	}
 
 	fillSite(&p, site)
@@ -5630,10 +5809,13 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 	var resp CostsDeleteResponse
 
-	costJSON, _ := json.Marshal(&ids)
+	costJSON, err := marshalToString(&ids)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"ids": {string(costJSON)},
+		"ids": {costJSON},
 	}
 
 	data, status, err := c.PostRequest("/costs/delete", p)
@@ -5690,10 +5872,13 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error) {
 	var resp CostsUploadResponse
 
-	costJSON, _ := json.Marshal(&cost)
+	costJSON, err := marshalToString(&cost)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"costs": {string(costJSON)},
+		"costs": {costJSON},
 	}
 
 	data, status, err := c.PostRequest("/costs/upload", p)
@@ -5764,16 +5949,19 @@ func (c *Client) Cost(id int) (CostResponse, int, error) {
 //
 //		log.Fatalf("http status: %d, error: %s", status, err)
 //	}
-func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
+func (c *Client) CostDelete(costID int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	costJSON, _ := json.Marshal(&id)
-
-	p := url.Values{
-		"costs": {string(costJSON)},
+	costJSON, err := marshalToString(&costID)
+	if err != nil {
+		return resp, 0, err
 	}
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/delete", id), p)
+	p := url.Values{
+		"costs": {costJSON},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/delete", costID), p)
 
 	if err != nil {
 		return resp, status, err
@@ -5813,18 +6001,21 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 //	If data.Success == true {
 //		log.Printf("%v", data.ID)
 //	}
-func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateResponse, int, error) {
+func (c *Client) CostEdit(costID int, cost CostRecord, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
-	costJSON, _ := json.Marshal(&cost)
+	costJSON, err := marshalToString(&cost)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"cost": {string(costJSON)},
+		"cost": {costJSON},
 	}
 
 	fillSite(&p, site)
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/edit", id), p)
+	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/edit", costID), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -6034,10 +6225,13 @@ func (c *Client) FileDownload(id int) (io.ReadCloser, int, error) {
 func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 	var resp FileResponse
 
-	req, _ := json.Marshal(file)
+	fileJSON, err := marshalToString(file)
+	if err != nil {
+		return resp, 0, err
+	}
 	data, status, err := c.PostRequest(
 		fmt.Sprintf("/files/%d/edit", id), url.Values{
-			"file": {string(req)},
+			"file": {fileJSON},
 		},
 	)
 
@@ -6179,10 +6373,13 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (CustomResponse, int, error) {
 	var resp CustomResponse
 
-	costJSON, _ := json.Marshal(&customDictionary)
+	costJSON, err := marshalToString(&customDictionary)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customDictionary": {string(costJSON)},
+		"customDictionary": {costJSON},
 	}
 
 	data, status, err := c.PostRequest("/custom-fields/dictionaries/create", p)
@@ -6274,10 +6471,13 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, e
 func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (CustomResponse, int, error) {
 	var resp CustomResponse
 
-	costJSON, _ := json.Marshal(&customDictionary)
+	costJSON, err := marshalToString(&customDictionary)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customDictionary": {string(costJSON)},
+		"customDictionary": {costJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code), p)
@@ -6323,10 +6523,13 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, int, error) {
 	var resp CustomResponse
 
-	costJSON, _ := json.Marshal(&customFields)
+	costJSON, err := marshalToString(&customFields)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customField": {string(costJSON)},
+		"customField": {costJSON},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/create", customFields.Entity), p)
@@ -6409,10 +6612,13 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, err
 func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int, error) {
 	var resp CustomResponse
 
-	costJSON, _ := json.Marshal(&customFields)
+	costJSON, err := marshalToString(&customFields)
+	if err != nil {
+		return resp, 0, err
+	}
 
 	p := url.Values{
-		"customField": {string(costJSON)},
+		"customField": {costJSON},
 	}
 
 	data, status, err := c.PostRequest(
@@ -6566,9 +6772,12 @@ func (c *Client) AccountBonusOperations(id int, parameters AccountBonusOperation
 func (c *Client) ProductsBatchEdit(products []ProductEdit) (ProductsBatchEditResponse, int, error) {
 	var resp ProductsBatchEditResponse
 
-	productsEditJSON, _ := json.Marshal(products)
+	productsEditJSON, err := marshalToString(products)
+	if err != nil {
+		return resp, 0, err
+	}
 	p := url.Values{
-		"products": {string(productsEditJSON)},
+		"products": {productsEditJSON},
 	}
 
 	data, status, err := c.PostRequest("/store/products/batch/edit", p)
@@ -6620,9 +6829,12 @@ func (c *Client) ProductsBatchEdit(products []ProductEdit) (ProductsBatchEditRes
 func (c *Client) ProductsBatchCreate(products []ProductCreate) (ProductsBatchEditResponse, int, error) {
 	var resp ProductsBatchEditResponse
 
-	productsEditJSON, _ := json.Marshal(products)
+	productsEditJSON, err := marshalToString(products)
+	if err != nil {
+		return resp, 0, err
+	}
 	p := url.Values{
-		"products": {string(productsEditJSON)},
+		"products": {productsEditJSON},
 	}
 
 	data, status, err := c.PostRequest("/store/products/batch/create", p)
@@ -6672,10 +6884,13 @@ func (c *Client) ProductsBatchCreate(products []ProductCreate) (ProductsBatchEdi
 func (c *Client) LoyaltyAccountCreate(site string, loyaltyAccount SerializedCreateLoyaltyAccount) (CreateLoyaltyAccountResponse, int, error) {
 	var result CreateLoyaltyAccountResponse
 
-	loyaltyAccountJSON, _ := json.Marshal(loyaltyAccount)
+	loyaltyAccountJSON, err := marshalToString(loyaltyAccount)
+	if err != nil {
+		return result, 0, err
+	}
 	p := url.Values{
 		"site":           {site},
-		"loyaltyAccount": {string(loyaltyAccountJSON)},
+		"loyaltyAccount": {loyaltyAccountJSON},
 	}
 
 	resp, status, err := c.PostRequest("/loyalty/account/create", p)
@@ -6720,15 +6935,18 @@ func (c *Client) LoyaltyAccountCreate(site string, loyaltyAccount SerializedCrea
 //		if data.Success == true {
 //			log.Printf("%v", data.LoyaltyAccount.PhoneNumber)
 //		}
-func (c *Client) LoyaltyAccountEdit(id int, loyaltyAccount SerializedEditLoyaltyAccount) (EditLoyaltyAccountResponse, int, error) {
+func (c *Client) LoyaltyAccountEdit(accountID int, loyaltyAccount SerializedEditLoyaltyAccount) (EditLoyaltyAccountResponse, int, error) {
 	var result EditLoyaltyAccountResponse
 
-	loyaltyAccountJSON, _ := json.Marshal(loyaltyAccount)
+	loyaltyAccountJSON, err := marshalToString(loyaltyAccount)
+	if err != nil {
+		return result, 0, err
+	}
 	p := url.Values{
-		"loyaltyAccount": {string(loyaltyAccountJSON)},
+		"loyaltyAccount": {loyaltyAccountJSON},
 	}
 
-	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/edit", id), p)
+	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/edit", accountID), p)
 
 	if err != nil {
 		return result, status, err
@@ -7015,11 +7233,14 @@ func (c *Client) LoyaltyAccounts(req LoyaltyAccountsRequest) (LoyaltyAccountsRes
 func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculateResponse, int, error) {
 	var result LoyaltyCalculateResponse
 
-	orderJSON, _ := json.Marshal(req.Order)
+	orderJSON, err := marshalToString(req.Order)
+	if err != nil {
+		return result, 0, err
+	}
 
 	p := url.Values{
 		"site":    {req.Site},
-		"order":   {string(orderJSON)},
+		"order":   {orderJSON},
 		"bonuses": {fmt.Sprintf("%f", req.Bonuses)},
 	}
 
@@ -7206,10 +7427,13 @@ func (c *Client) OrderIntegrationDeliveryCancel(by string, force bool, id string
 func (c *Client) CreateProductsGroup(group ProductGroup) (ActionProductsGroupResponse, int, error) {
 	var result ActionProductsGroupResponse
 
-	groupJSON, _ := json.Marshal(group)
+	groupJSON, err := marshalToString(group)
+	if err != nil {
+		return result, 0, err
+	}
 
 	p := url.Values{
-		"productGroup": {string(groupJSON)},
+		"productGroup": {groupJSON},
 	}
 
 	resp, status, err := c.PostRequest("/store/product-groups/create", p)
@@ -7254,18 +7478,21 @@ func (c *Client) CreateProductsGroup(group ProductGroup) (ActionProductsGroupRes
 //	if data.Success == true {
 //		log.Printf("%v", res.ID)
 //	}
-func (c *Client) EditProductsGroup(by, id, site string, group ProductGroup) (ActionProductsGroupResponse, int, error) {
+func (c *Client) EditProductsGroup(by, groupID, site string, group ProductGroup) (ActionProductsGroupResponse, int, error) {
 	var result ActionProductsGroupResponse
 
-	groupJSON, _ := json.Marshal(group)
+	groupJSON, err := marshalToString(group)
+	if err != nil {
+		return result, 0, err
+	}
 
 	p := url.Values{
 		"by":           {checkBy(by)},
 		"site":         {site},
-		"productGroup": {string(groupJSON)},
+		"productGroup": {groupJSON},
 	}
 
-	resp, status, err := c.PostRequest(fmt.Sprintf("/store/product-groups/%s/edit", id), p)
+	resp, status, err := c.PostRequest(fmt.Sprintf("/store/product-groups/%s/edit", groupID), p)
 
 	if err != nil {
 		return result, status, err

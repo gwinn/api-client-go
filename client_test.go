@@ -18,8 +18,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/retailcrm/api-client-go/v2/constant"
 	"github.com/stretchr/testify/require"
+
+	"github.com/retailcrm/api-client-go/v2/constant"
 
 	"github.com/google/go-querystring/query"
 
@@ -812,8 +813,8 @@ func TestClient_CustomersCombine(t *testing.T) {
 	combineJSONOut, _ := json.Marshal(&resultCustomer)
 
 	p := url.Values{
-		"customers":      {string(jr[:])},
-		"resultCustomer": {string(combineJSONOut[:])},
+		"customers":      {string(jr)},
+		"resultCustomer": {string(combineJSONOut)},
 	}
 
 	gock.New(crmURL).
@@ -849,8 +850,8 @@ func TestClient_CustomersCombine_Fail(t *testing.T) {
 	combineJSONOut, _ := json.Marshal(&resultCustomer)
 
 	p := url.Values{
-		"customers":      {string(jr[:])},
-		"resultCustomer": {string(combineJSONOut[:])},
+		"customers":      {string(jr)},
+		"resultCustomer": {string(combineJSONOut)},
 	}
 
 	gock.New(crmURL).
@@ -883,7 +884,7 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 	jr, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customers": {string(jr[:])},
+		"customers": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -917,7 +918,7 @@ func TestClient_CustomersFixExternalIds_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customers": {string(jr[:])},
+		"customers": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -1140,7 +1141,7 @@ func TestClient_CorporateCustomersFixExternalIds(t *testing.T) {
 	jr, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customersCorporate": {string(jr[:])},
+		"customersCorporate": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -1174,7 +1175,7 @@ func TestClient_CorporateCustomersFixExternalIds_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customersCorporate": {string(jr[:])},
+		"customersCorporate": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -2458,7 +2459,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 	jr, _ := json.Marshal(&note)
 
 	p := url.Values{
-		"note": {string(jr[:])},
+		"note": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -2520,7 +2521,7 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&note)
 
 	p := url.Values{
-		"note": {string(jr[:])},
+		"note": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -3048,7 +3049,7 @@ func TestClient_OrderChange(t *testing.T) {
 	jr, _ := json.Marshal(&f)
 
 	p := url.Values{
-		"order": {string(jr[:])},
+		"order": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -3162,7 +3163,7 @@ func TestClient_OrderChange(t *testing.T) {
 
 	p = url.Values{
 		"by":    {string(ByID)},
-		"order": {string(jr[:])},
+		"order": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -3225,7 +3226,7 @@ func TestClient_OrderChange_Fail(t *testing.T) {
 
 	p := url.Values{
 		"by":    {string(ByID)},
-		"order": {string(jr[:])},
+		"order": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -3263,7 +3264,7 @@ func TestClient_OrdersUpload(t *testing.T) {
 	jr, _ := json.Marshal(&orders)
 
 	p := url.Values{
-		"orders": {string(jr[:])},
+		"orders": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -3308,7 +3309,7 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&orders)
 
 	p := url.Values{
-		"orders": {string(jr[:])},
+		"orders": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4351,7 +4352,7 @@ func TestClient_OrderPaymentEdit(t *testing.T) {
 	jr, _ := json.Marshal(&payment)
 	p := url.Values{
 		"by":      {"externalId"},
-		"payment": {string(jr[:])},
+		"payment": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4696,7 +4697,7 @@ func TestClient_CostGroupItemEdit(t *testing.T) {
 	jr, _ := json.Marshal(&costGroup)
 
 	p := url.Values{
-		"costGroup": {string(jr[:])},
+		"costGroup": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4731,7 +4732,7 @@ func TestClient_CostGroupItemEdit(t *testing.T) {
 	jr, _ = json.Marshal(&costItem)
 
 	p = url.Values{
-		"costItem": {string(jr[:])},
+		"costItem": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4771,7 +4772,7 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&costGroup)
 
 	p := url.Values{
-		"costGroup": {string(jr[:])},
+		"costGroup": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4802,7 +4803,7 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 	jr, _ = json.Marshal(&costItem)
 
 	p = url.Values{
-		"costItem": {string(jr[:])},
+		"costItem": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4841,7 +4842,7 @@ func TestClient_Courier(t *testing.T) {
 	jr, _ := json.Marshal(&cur)
 
 	p := url.Values{
-		"courier": {string(jr[:])},
+		"courier": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4870,7 +4871,7 @@ func TestClient_Courier(t *testing.T) {
 	jr, _ = json.Marshal(&cur)
 
 	p = url.Values{
-		"courier": {string(jr[:])},
+		"courier": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4903,7 +4904,7 @@ func TestClient_Courier_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&Courier{})
 
 	p := url.Values{
-		"courier": {string(jr[:])},
+		"courier": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4930,7 +4931,7 @@ func TestClient_Courier_Fail(t *testing.T) {
 	jr, _ = json.Marshal(&cur)
 
 	p = url.Values{
-		"courier": {string(jr[:])},
+		"courier": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -4968,7 +4969,7 @@ func TestClient_DeliveryServiceEdit(t *testing.T) {
 	jr, _ := json.Marshal(&deliveryService)
 
 	p := url.Values{
-		"deliveryService": {string(jr[:])},
+		"deliveryService": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5005,7 +5006,7 @@ func TestClient_DeliveryServiceEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&deliveryService)
 
 	p := url.Values{
-		"deliveryService": {string(jr[:])},
+		"deliveryService": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5048,7 +5049,7 @@ func TestClient_DeliveryTypeEdit(t *testing.T) {
 	jr, _ := json.Marshal(&deliveryType)
 
 	p := url.Values{
-		"deliveryType": {string(jr[:])},
+		"deliveryType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5089,7 +5090,7 @@ func TestClient_DeliveryTypeEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&deliveryType)
 
 	p := url.Values{
-		"deliveryType": {string(jr[:])},
+		"deliveryType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5127,7 +5128,7 @@ func TestClient_OrderMethodEdit(t *testing.T) {
 	jr, _ := json.Marshal(&orderMethod)
 
 	p := url.Values{
-		"orderMethod": {string(jr[:])},
+		"orderMethod": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5165,7 +5166,7 @@ func TestClient_OrderMethodEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&orderMethod)
 
 	p := url.Values{
-		"orderMethod": {string(jr[:])},
+		"orderMethod": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5204,7 +5205,7 @@ func TestClient_OrderTypeEdit(t *testing.T) {
 	jr, _ := json.Marshal(&orderType)
 
 	p := url.Values{
-		"orderType": {string(jr[:])},
+		"orderType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5241,7 +5242,7 @@ func TestClient_OrderTypeEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&orderType)
 
 	p := url.Values{
-		"orderType": {string(jr[:])},
+		"orderType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5282,7 +5283,7 @@ func TestClient_PaymentStatusEdit(t *testing.T) {
 	jr, _ := json.Marshal(&paymentStatus)
 
 	p := url.Values{
-		"paymentStatus": {string(jr[:])},
+		"paymentStatus": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5322,7 +5323,7 @@ func TestClient_PaymentStatusEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&paymentStatus)
 
 	p := url.Values{
-		"paymentStatus": {string(jr[:])},
+		"paymentStatus": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5360,7 +5361,7 @@ func TestClient_PaymentTypeEdit(t *testing.T) {
 	jr, _ := json.Marshal(&paymentType)
 
 	p := url.Values{
-		"paymentType": {string(jr[:])},
+		"paymentType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5398,7 +5399,7 @@ func TestClient_PaymentTypeEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&paymentType)
 
 	p := url.Values{
-		"paymentType": {string(jr[:])},
+		"paymentType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5435,7 +5436,7 @@ func TestClient_PriceTypeEdit(t *testing.T) {
 	jr, _ := json.Marshal(&priceType)
 
 	p := url.Values{
-		"priceType": {string(jr[:])},
+		"priceType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5471,7 +5472,7 @@ func TestClient_PriceTypeEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&priceType)
 
 	p := url.Values{
-		"priceType": {string(jr[:])},
+		"priceType": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5509,7 +5510,7 @@ func TestClient_ProductStatusEdit(t *testing.T) {
 	jr, _ := json.Marshal(&productStatus)
 
 	p := url.Values{
-		"productStatus": {string(jr[:])},
+		"productStatus": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5546,7 +5547,7 @@ func TestClient_ProductStatusEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&productStatus)
 
 	p := url.Values{
-		"productStatus": {string(jr[:])},
+		"productStatus": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5584,7 +5585,7 @@ func TestClient_StatusEdit(t *testing.T) {
 	jr, _ := json.Marshal(&status)
 
 	p := url.Values{
-		"status": {string(jr[:])},
+		"status": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5623,7 +5624,7 @@ func TestClient_StatusEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&status)
 
 	p := url.Values{
-		"status": {string(jr[:])},
+		"status": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5661,7 +5662,7 @@ func TestClient_SiteEdit(t *testing.T) {
 	jr, _ := json.Marshal(&site)
 
 	p := url.Values{
-		"site": {string(jr[:])},
+		"site": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5695,7 +5696,7 @@ func TestClient_SiteEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&site)
 
 	p := url.Values{
-		"site": {string(jr[:])},
+		"site": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5731,7 +5732,7 @@ func TestClient_StoreEdit(t *testing.T) {
 	jr, _ := json.Marshal(&store)
 
 	p := url.Values{
-		"store": {string(jr[:])},
+		"store": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5770,7 +5771,7 @@ func TestClient_StoreEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&store)
 
 	p := url.Values{
-		"store": {string(jr[:])},
+		"store": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5834,7 +5835,7 @@ func TestClient_UnitsEdit(t *testing.T) {
 	jr, _ := json.Marshal(&unit)
 
 	p := url.Values{
-		"unit": {string(jr[:])},
+		"unit": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5871,7 +5872,7 @@ func TestClient_UnitEdit_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&unit)
 
 	p := url.Values{
-		"unit": {string(jr[:])},
+		"unit": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5908,7 +5909,7 @@ func TestClient_PackChange(t *testing.T) {
 	jr, _ := json.Marshal(&pack)
 
 	pr := url.Values{
-		"pack": {string(jr[:])},
+		"pack": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -5952,7 +5953,7 @@ func TestClient_PackChange(t *testing.T) {
 	jr, _ = json.Marshal(&Pack{ID: p.ID, Quantity: 2})
 
 	pr = url.Values{
-		"pack": {string(jr[:])},
+		"pack": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -6009,7 +6010,7 @@ func TestClient_PackChange_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&pack)
 
 	pr := url.Values{
-		"pack": {string(jr[:])},
+		"pack": {string(jr)},
 	}
 
 	gock.New(crmURL).
@@ -6049,7 +6050,7 @@ func TestClient_PackChange_Fail(t *testing.T) {
 	jr, _ = json.Marshal(&Pack{ID: iCodeFail, Quantity: 2})
 
 	pr = url.Values{
-		"pack": {string(jr[:])},
+		"pack": {string(jr)},
 	}
 
 	gock.New(crmURL).

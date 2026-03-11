@@ -594,8 +594,11 @@ func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 // MarshalJSON method.
 func (v OrderDeliveryData) MarshalJSON() ([]byte, error) {
 	result := map[string]interface{}{}
-	data, _ := json.Marshal(v.OrderDeliveryDataBasic)
-	err := json.Unmarshal(data, &result)
+	data, err := json.Marshal(v.OrderDeliveryDataBasic)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &result)
 	if err != nil {
 		return nil, err
 	}
