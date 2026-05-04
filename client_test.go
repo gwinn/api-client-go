@@ -6869,9 +6869,12 @@ func TestClient_DeliveryCalculate(t *testing.T) {
 	orderJSON, err := json.Marshal(req.Order)
 	assert.NoError(t, err)
 
+	deliveryTypeCodesJSON, err := json.Marshal(req.DeliveryTypeCodes)
+	assert.NoError(t, err)
+
 	p := url.Values{
-		"deliveryTypeCodes[]": req.DeliveryTypeCodes,
-		"order":               {string(orderJSON)},
+		"deliveryTypeCodes": {string(deliveryTypeCodesJSON)},
+		"order":             {string(orderJSON)},
 	}
 
 	gock.New(crmURL).
@@ -6915,9 +6918,12 @@ func TestClient_DeliveryCalculate_Fail(t *testing.T) {
 	orderJSON, err := json.Marshal(req.Order)
 	assert.NoError(t, err)
 
+	deliveryTypeCodesJSON, err := json.Marshal(req.DeliveryTypeCodes)
+	assert.NoError(t, err)
+
 	p := url.Values{
-		"deliveryTypeCodes[]": req.DeliveryTypeCodes,
-		"order":               {string(orderJSON)},
+		"deliveryTypeCodes": {string(deliveryTypeCodesJSON)},
+		"order":             {string(orderJSON)},
 	}
 
 	gock.New(crmURL).

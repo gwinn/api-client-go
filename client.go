@@ -2587,9 +2587,14 @@ func (c *Client) DeliveryCalculate(parameters DeliveryCalculateRequest) (Deliver
 		return resp, 0, err
 	}
 
+	deliveryTypeCodesJSON, err := marshalToString(parameters.DeliveryTypeCodes)
+	if err != nil {
+		return resp, 0, err
+	}
+
 	p := url.Values{
-		"deliveryTypeCodes[]": parameters.DeliveryTypeCodes,
-		"order":               {orderJSON},
+		"deliveryTypeCodes": {deliveryTypeCodesJSON},
+		"order":             {orderJSON},
 	}
 
 	data, status, err := c.PostRequest("/delivery/calculate", p)
