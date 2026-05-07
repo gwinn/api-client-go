@@ -362,6 +362,9 @@ type InventoriesResponse struct {
 	Offers     []Offer     `json:"offers,omitempty"`
 }
 
+// StoreInventoriesResponse type.
+type StoreInventoriesResponse = InventoriesResponse
+
 // StoreUploadResponse type.
 type StoreUploadResponse struct {
 	Success              bool    `json:"success"`
@@ -382,6 +385,9 @@ type ProductsResponse struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Products   []Product   `json:"products,omitempty"`
 }
+
+// StoreProductsResponse type.
+type StoreProductsResponse = ProductsResponse
 
 type ProductEditNotFoundResponse struct {
 	ID         string `json:"id"`
