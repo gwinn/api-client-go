@@ -9,10 +9,10 @@ import (
 func TestClient_OrderDeliveryData(t *testing.T) {
 	d := OrderDeliveryData{
 		OrderDeliveryDataBasic: OrderDeliveryDataBasic{
-			"track",
-			"status",
-			"address",
-			"type",
+			TrackNumber:        "track",
+			Status:             "status",
+			PickuppointAddress: "address",
+			PayerType:          "type",
 		},
 	}
 
@@ -37,10 +37,10 @@ func TestClient_OrderDeliveryData(t *testing.T) {
 	json.Unmarshal(data, &d)
 	expected := OrderDeliveryData{
 		OrderDeliveryDataBasic: OrderDeliveryDataBasic{
-			"track",
-			"status",
-			"address",
-			"type",
+			TrackNumber:        "track",
+			Status:             "status",
+			PickuppointAddress: "address",
+			PayerType:          "type",
 		},
 		AdditionalFields: map[string]interface{}{
 			"customFirst":  "one",
@@ -78,5 +78,67 @@ func TestCustomer_IsContactJSON(t *testing.T) {
 
 	if !decoded.IsContact {
 		t.Fatalf("expected IsContact=true after unmarshal")
+	}
+}
+
+func TestAPIMethodDTOFieldsJSON(t *testing.T) {
+	order := Order{
+		Company:                &Company{ID: 10, ExternalID: "company-ext"},
+		LoyaltyEventDiscountID: 55,
+		IsFromCart:             true,
+		Items: []OrderItem{{
+			ExternalID:     "item-ext",
+			ExternalIDs:    []CodeValueModel{{Code: "marketplace", Value: "item-1"}},
+			MarkingCodes:   []string{"mark-1"},
+			MarkingObjects: []MarkingObject{{Code: "mark-2", Provider: "chestny_znak"}},
+			Ordering:       2,
+		}},
+		Delivery: &OrderDelivery{
+			Service: &OrderDeliveryService{DeliveryType: "courier"},
+			Data: &OrderDeliveryData{OrderDeliveryDataBasic: OrderDeliveryDataBasic{
+				ExternalID: "delivery-ext",
+				Cost:       100,
+				ExtraData:  StringMap{"terminal": "A1"},
+				ItemDeclaredValues: []DeliveryItemDeclaredValue{{
+					OrderProduct: OrderProductIdentifier{ExternalID: "item-ext"},
+					Value:        500,
+				}},
+				Packages: []DeliveryPackage{{
+					PackageID: "box-1",
+					Items: []DeliveryPackageItem{{
+						OrderProduct: OrderProductIdentifier{ExternalID: "item-ext"},
+						Quantity:     1,
+					}},
+				}},
+			}},
+		},
+	}
+
+	data, err := json.Marshal(order)
+	if err != nil {
+		t.Fatalf("marshal order: %v", err)
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal(data, &payload); err != nil {
+		t.Fatalf("unmarshal order payload: %v", err)
+	}
+
+	if _, ok := payload["company"]; !ok {
+		t.Fatalf("expected company in marshaled order: %s", data)
+	}
+	if payload["loyaltyEventDiscountId"].(float64) != 55 {
+		t.Fatalf("expected loyaltyEventDiscountId=55, got %#v", payload["loyaltyEventDiscountId"])
+	}
+	if payload["isFromCart"] != true {
+		t.Fatalf("expected isFromCart=true, got %#v", payload["isFromCart"])
+	}
+
+	var decodedPack Pack
+	if err := json.Unmarshal([]byte(`{"item":{"id":1,"externalId":"item-ext","externalIds":[{"code":"marketplace","value":"item-1"}]}}`), &decodedPack); err != nil {
+		t.Fatalf("unmarshal pack: %v", err)
+	}
+	if decodedPack.Item == nil || decodedPack.Item.ExternalIDs[0].Code != "marketplace" {
+		t.Fatalf("expected pack item externalIds, got %#v", decodedPack.Item)
 	}
 }

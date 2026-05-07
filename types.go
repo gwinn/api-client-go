@@ -42,6 +42,7 @@ type Pagination struct {
 
 // Address type.
 type Address struct {
+	ID         int    `json:"id,omitempty"`
 	Index      string `json:"index,omitempty"`
 	CountryIso string `json:"countryIso,omitempty"`
 	Region     string `json:"region,omitempty"`
@@ -61,6 +62,8 @@ type Address struct {
 	Metro      string `json:"metro,omitempty"`
 	Notes      string `json:"notes,omitempty"`
 	Text       string `json:"text,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	Name       string `json:"name,omitempty"`
 }
 
 // GeoID type. Can be empty string.
@@ -124,6 +127,7 @@ type Property struct {
 type IdentifiersPair struct {
 	ID         int    `json:"id,omitempty"`
 	ExternalID string `json:"externalId,omitempty"`
+	Name       string `json:"name,omitempty"`
 }
 
 // DeliveryTime type.
@@ -139,43 +143,60 @@ Customer related types
 
 // Customer type.
 type Customer struct {
-	ID                           int                    `json:"id,omitempty"`
-	ExternalID                   string                 `json:"externalId,omitempty"`
-	FirstName                    string                 `json:"firstName,omitempty"`
-	LastName                     string                 `json:"lastName,omitempty"`
-	Patronymic                   string                 `json:"patronymic,omitempty"`
-	Sex                          string                 `json:"sex,omitempty"`
-	Email                        string                 `json:"email,omitempty"`
-	Phones                       []Phone                `json:"phones,omitempty"`
-	Address                      *Address               `json:"address,omitempty"`
-	CreatedAt                    string                 `json:"createdAt,omitempty"`
-	Birthday                     string                 `json:"birthday,omitempty"`
-	ManagerID                    int                    `json:"managerId,omitempty"`
-	Vip                          bool                   `json:"vip,omitempty"`
-	Bad                          bool                   `json:"bad,omitempty"`
-	IsContact                    bool                   `json:"isContact,omitempty"`
-	Site                         string                 `json:"site,omitempty"`
-	Source                       *Source                `json:"source,omitempty"`
-	Contragent                   *Contragent            `json:"contragent,omitempty"`
-	PersonalDiscount             float32                `json:"personalDiscount,omitempty"`
-	CumulativeDiscount           float32                `json:"cumulativeDiscount,omitempty"`
-	DiscountCardNumber           string                 `json:"discountCardNumber,omitempty"`
-	EmailMarketingUnsubscribedAt string                 `json:"emailMarketingUnsubscribedAt,omitempty"`
-	AvgMarginSumm                float32                `json:"avgMarginSumm,omitempty"`
-	MarginSumm                   float32                `json:"marginSumm,omitempty"`
-	TotalSumm                    float32                `json:"totalSumm,omitempty"`
-	AverageSumm                  float32                `json:"averageSumm,omitempty"`
-	OrdersCount                  int                    `json:"ordersCount,omitempty"`
-	CostSumm                     float32                `json:"costSumm,omitempty"`
-	MaturationTime               int                    `json:"maturationTime,omitempty"`
-	FirstClientID                string                 `json:"firstClientId,omitempty"`
-	LastClientID                 string                 `json:"lastClientId,omitempty"`
-	BrowserID                    string                 `json:"browserId,omitempty"`
-	MgCustomerID                 string                 `json:"mgCustomerId,omitempty"`
-	PhotoURL                     string                 `json:"photoUrl,omitempty"`
-	CustomFields                 CustomFieldMap         `json:"customFields,omitempty"`
-	Tags                         []Tag                  `json:"tags,omitempty"`
-	CustomerSubscriptions        []CustomerSubscription `json:"customerSubscriptions,omitempty"`
+	ID                           int                       `json:"id,omitempty"`
+	Type                         string                    `json:"type,omitempty"`
+	ExternalID                   string                    `json:"externalId,omitempty"`
+	FirstName                    string                    `json:"firstName,omitempty"`
+	LastName                     string                    `json:"lastName,omitempty"`
+	Patronymic                   string                    `json:"patronymic,omitempty"`
+	Sex                          string                    `json:"sex,omitempty"`
+	PresumableSex                string                    `json:"presumableSex,omitempty"`
+	Email                        string                    `json:"email,omitempty"`
+	Phones                       []Phone                   `json:"phones,omitempty"`
+	Address                      *Address                  `json:"address,omitempty"`
+	CreatedAt                    string                    `json:"createdAt,omitempty"`
+	Birthday                     string                    `json:"birthday,omitempty"`
+	ManagerID                    int                       `json:"managerId,omitempty"`
+	Vip                          bool                      `json:"vip,omitempty"`
+	Bad                          bool                      `json:"bad,omitempty"`
+	IsContact                    bool                      `json:"isContact,omitempty"`
+	Site                         string                    `json:"site,omitempty"`
+	Source                       *Source                   `json:"source,omitempty"`
+	Contragent                   *Contragent               `json:"contragent,omitempty"`
+	PersonalDiscount             float32                   `json:"personalDiscount,omitempty"`
+	CumulativeDiscount           float32                   `json:"cumulativeDiscount,omitempty"`
+	DiscountCardNumber           string                    `json:"discountCardNumber,omitempty"`
+	EmailMarketingUnsubscribedAt string                    `json:"emailMarketingUnsubscribedAt,omitempty"`
+	AvgMarginSumm                float32                   `json:"avgMarginSumm,omitempty"`
+	MarginSumm                   float32                   `json:"marginSumm,omitempty"`
+	TotalSumm                    float32                   `json:"totalSumm,omitempty"`
+	AverageSumm                  float32                   `json:"averageSumm,omitempty"`
+	OrdersCount                  int                       `json:"ordersCount,omitempty"`
+	CostSumm                     float32                   `json:"costSumm,omitempty"`
+	MaturationTime               int                       `json:"maturationTime,omitempty"`
+	FirstClientID                string                    `json:"firstClientId,omitempty"`
+	LastClientID                 string                    `json:"lastClientId,omitempty"`
+	BrowserID                    string                    `json:"browserId,omitempty"`
+	MgCustomerID                 string                    `json:"mgCustomerId,omitempty"`
+	MgCustomers                  []MGCustomer              `json:"mgCustomers,omitempty"`
+	PhotoURL                     string                    `json:"photoUrl,omitempty"`
+	Subscribed                   bool                      `json:"subscribed,omitempty"`
+	AttachedTag                  string                    `json:"attachedTag,omitempty"`
+	Nickname                     string                    `json:"nickName,omitempty"`
+	CustomFields                 CustomFieldMap            `json:"customFields,omitempty"`
+	Tags                         []Tag                     `json:"tags,omitempty"`
+	Segments                     []Segment                 `json:"segments,omitempty"`
+	CustomerSubscriptions        []CustomerSubscription    `json:"customerSubscriptions,omitempty"`
+	MainAddress                  *IdentifiersPair          `json:"mainAddress,omitempty"`
+	MainCustomerContact          *CorporateCustomerContact `json:"mainCustomerContact,omitempty"`
+	MainCompany                  *IdentifiersPair          `json:"mainCompany,omitempty"`
+}
+
+// MGCustomer type.
+type MGCustomer struct {
+	ID         int        `json:"id,omitempty"`
+	ExternalID string     `json:"externalId,omitempty"`
+	MGChannel  *MGChannel `json:"mgChannel,omitempty"`
 }
 
 // CustomerSubscription type.
@@ -275,6 +296,7 @@ type Company struct {
 	ID           int              `json:"id,omitempty"`
 	IsMain       bool             `json:"isMain,omitempty"`
 	ExternalID   string           `json:"externalId,omitempty"`
+	Customer     *Customer        `json:"customer,omitempty"`
 	Active       bool             `json:"active,omitempty"`
 	Name         string           `json:"name,omitempty"`
 	Brand        string           `json:"brand,omitempty"`
@@ -346,61 +368,68 @@ type Properties map[string]Property
 
 // Order type.
 type Order struct {
-	ID                            int               `json:"id,omitempty"`
-	ExternalID                    string            `json:"externalId,omitempty"`
-	Number                        string            `json:"number,omitempty"`
-	FirstName                     string            `json:"firstName,omitempty"`
-	LastName                      string            `json:"lastName,omitempty"`
-	Patronymic                    string            `json:"patronymic,omitempty"`
-	Email                         string            `json:"email,omitempty"`
-	Phone                         string            `json:"phone,omitempty"`
-	AdditionalPhone               string            `json:"additionalPhone,omitempty"`
-	CreatedAt                     string            `json:"createdAt,omitempty"`
-	StatusUpdatedAt               string            `json:"statusUpdatedAt,omitempty"`
-	ManagerID                     int               `json:"managerId,omitempty"`
-	Mark                          int               `json:"mark,omitempty"`
-	Call                          bool              `json:"call,omitempty"`
-	Expired                       bool              `json:"expired,omitempty"`
-	FromAPI                       bool              `json:"fromApi,omitempty"`
-	MarkDatetime                  string            `json:"markDatetime,omitempty"`
-	CustomerComment               string            `json:"customerComment,omitempty"`
-	ManagerComment                string            `json:"managerComment,omitempty"`
-	Status                        string            `json:"status,omitempty"`
-	StatusComment                 string            `json:"statusComment,omitempty"`
-	FullPaidAt                    string            `json:"fullPaidAt,omitempty"`
-	Site                          string            `json:"site,omitempty"`
-	OrderType                     string            `json:"orderType,omitempty"`
-	OrderMethod                   string            `json:"orderMethod,omitempty"`
-	CountryIso                    string            `json:"countryIso,omitempty"`
-	Summ                          float32           `json:"summ,omitempty"`
-	TotalSumm                     float32           `json:"totalSumm,omitempty"`
-	PrepaySum                     float32           `json:"prepaySum,omitempty"`
-	PurchaseSumm                  float32           `json:"purchaseSumm,omitempty"`
-	DiscountManualAmount          float32           `json:"discountManualAmount,omitempty"`
-	DiscountManualPercent         float32           `json:"discountManualPercent,omitempty"`
-	Weight                        float32           `json:"weight,omitempty"`
-	Length                        int               `json:"length,omitempty"`
-	Width                         int               `json:"width,omitempty"`
-	Height                        int               `json:"height,omitempty"`
-	ShipmentStore                 string            `json:"shipmentStore,omitempty"`
-	ShipmentDate                  string            `json:"shipmentDate,omitempty"`
-	ClientID                      string            `json:"clientId,omitempty"`
-	Shipped                       bool              `json:"shipped,omitempty"`
-	UploadedToExternalStoreSystem bool              `json:"uploadedToExternalStoreSystem,omitempty"`
-	Source                        *Source           `json:"source,omitempty"`
-	Contragent                    *Contragent       `json:"contragent,omitempty"`
-	Customer                      *Customer         `json:"customer,omitempty"`
-	Contact                       *Customer         `json:"contact,omitempty"`
-	Delivery                      *OrderDelivery    `json:"delivery,omitempty"`
-	Marketplace                   *OrderMarketplace `json:"marketplace,omitempty"`
-	Items                         []OrderItem       `json:"items,omitempty"`
-	CustomFields                  CustomFieldMap    `json:"customFields,omitempty"`
-	Payments                      OrderPayments     `json:"payments,omitempty"`
-	ApplyRound                    *bool             `json:"applyRound,omitempty"`
-	PrivilegeType                 string            `json:"privilegeType,omitempty"`
-	DialogID                      int               `json:"dialogId,omitempty"`
-	Links                         []OrderLink       `json:"links,omitempty"`
-	Currency                      string            `json:"currency,omitempty"`
+	ID                            int                   `json:"id,omitempty"`
+	Slug                          int                   `json:"slug,omitempty"`
+	ExternalID                    string                `json:"externalId,omitempty"`
+	Number                        string                `json:"number,omitempty"`
+	FirstName                     string                `json:"firstName,omitempty"`
+	LastName                      string                `json:"lastName,omitempty"`
+	Patronymic                    string                `json:"patronymic,omitempty"`
+	Email                         string                `json:"email,omitempty"`
+	Phone                         string                `json:"phone,omitempty"`
+	AdditionalPhone               string                `json:"additionalPhone,omitempty"`
+	CreatedAt                     string                `json:"createdAt,omitempty"`
+	StatusUpdatedAt               string                `json:"statusUpdatedAt,omitempty"`
+	ManagerID                     int                   `json:"managerId,omitempty"`
+	Mark                          int                   `json:"mark,omitempty"`
+	Call                          bool                  `json:"call,omitempty"`
+	Expired                       bool                  `json:"expired,omitempty"`
+	FromAPI                       bool                  `json:"fromApi,omitempty"`
+	MarkDatetime                  string                `json:"markDatetime,omitempty"`
+	CustomerComment               string                `json:"customerComment,omitempty"`
+	ManagerComment                string                `json:"managerComment,omitempty"`
+	Status                        string                `json:"status,omitempty"`
+	StatusComment                 string                `json:"statusComment,omitempty"`
+	FullPaidAt                    string                `json:"fullPaidAt,omitempty"`
+	Site                          string                `json:"site,omitempty"`
+	OrderType                     string                `json:"orderType,omitempty"`
+	OrderMethod                   string                `json:"orderMethod,omitempty"`
+	CountryIso                    string                `json:"countryIso,omitempty"`
+	Summ                          float32               `json:"summ,omitempty"`
+	TotalSumm                     float32               `json:"totalSumm,omitempty"`
+	PrepaySum                     float32               `json:"prepaySum,omitempty"`
+	PurchaseSumm                  float32               `json:"purchaseSumm,omitempty"`
+	DiscountManualAmount          float32               `json:"discountManualAmount,omitempty"`
+	DiscountManualPercent         float32               `json:"discountManualPercent,omitempty"`
+	PersonalDiscountPercent       float32               `json:"personalDiscountPercent,omitempty"`
+	Weight                        float32               `json:"weight,omitempty"`
+	Length                        int                   `json:"length,omitempty"`
+	Width                         int                   `json:"width,omitempty"`
+	Height                        int                   `json:"height,omitempty"`
+	ShipmentStore                 string                `json:"shipmentStore,omitempty"`
+	ShipmentDate                  string                `json:"shipmentDate,omitempty"`
+	ClientID                      string                `json:"clientId,omitempty"`
+	Shipped                       bool                  `json:"shipped,omitempty"`
+	UploadedToExternalStoreSystem bool                  `json:"uploadedToExternalStoreSystem,omitempty"`
+	Source                        *Source               `json:"source,omitempty"`
+	Contragent                    *Contragent           `json:"contragent,omitempty"`
+	Customer                      *Customer             `json:"customer,omitempty"`
+	Contact                       *Customer             `json:"contact,omitempty"`
+	Company                       *Company              `json:"company,omitempty"`
+	Delivery                      *OrderDelivery        `json:"delivery,omitempty"`
+	Marketplace                   *OrderMarketplace     `json:"marketplace,omitempty"`
+	Items                         []OrderItem           `json:"items,omitempty"`
+	CustomFields                  CustomFieldMap        `json:"customFields,omitempty"`
+	Payments                      OrderPayments         `json:"payments,omitempty"`
+	ApplyRound                    *bool                 `json:"applyRound,omitempty"`
+	PrivilegeType                 string                `json:"privilegeType,omitempty"`
+	LoyaltyLevel                  *LoyaltyLevel         `json:"loyaltyLevel,omitempty"`
+	LoyaltyEventDiscountID        int                   `json:"loyaltyEventDiscountId,omitempty"`
+	LoyaltyEventDiscount          *LoyaltyEventDiscount `json:"loyaltyEventDiscount,omitempty"`
+	DialogID                      int                   `json:"dialogId,omitempty"`
+	IsFromCart                    bool                  `json:"isFromCart,omitempty"`
+	Links                         []OrderLink           `json:"links,omitempty"`
+	Currency                      string                `json:"currency,omitempty"`
 
 	BonusesCreditTotal float32 `json:"bonusesCreditTotal,omitempty"`
 	BonusesChargeTotal float32 `json:"bonusesChargeTotal,omitempty"`
@@ -485,17 +514,120 @@ type OrderDeliveryTime struct {
 
 // OrderDeliveryService type.
 type OrderDeliveryService struct {
-	Name   string `json:"name,omitempty"`
-	Code   string `json:"code,omitempty"`
-	Active bool   `json:"active,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Code         string `json:"code,omitempty"`
+	Active       bool   `json:"active,omitempty"`
+	DeliveryType string `json:"deliveryType,omitempty"`
 }
 
 // OrderDeliveryDataBasic type.
 type OrderDeliveryDataBasic struct {
-	TrackNumber        string `json:"trackNumber,omitempty"`
-	Status             string `json:"status,omitempty"`
-	PickuppointAddress string `json:"pickuppointAddress,omitempty"`
-	PayerType          string `json:"payerType,omitempty"`
+	ExternalID                       string                      `json:"externalId,omitempty"`
+	TrackNumber                      string                      `json:"trackNumber,omitempty"`
+	Status                           string                      `json:"status,omitempty"`
+	Locked                           bool                        `json:"locked,omitempty"`
+	PickuppointAddress               string                      `json:"pickuppointAddress,omitempty"`
+	Days                             int                         `json:"days,omitempty"`
+	StatusText                       string                      `json:"statusText,omitempty"`
+	StatusDate                       string                      `json:"statusDate,omitempty"`
+	Tariff                           string                      `json:"tariff,omitempty"`
+	TariffName                       string                      `json:"tariffName,omitempty"`
+	PickuppointID                    string                      `json:"pickuppointId,omitempty"`
+	PickuppointName                  string                      `json:"pickuppointName,omitempty"`
+	PickuppointSchedule              string                      `json:"pickuppointSchedule,omitempty"`
+	PickuppointPhone                 string                      `json:"pickuppointPhone,omitempty"`
+	PickuppointCoordinateLatitude    float64                     `json:"pickuppointCoordinateLatitude,omitempty"`
+	PickuppointCoordinateLongitude   float64                     `json:"pickuppointCoordinateLongitude,omitempty"`
+	PayerType                        string                      `json:"payerType,omitempty"`
+	StatusComment                    string                      `json:"statusComment,omitempty"`
+	Cost                             float32                     `json:"cost,omitempty"`
+	MinTerm                          int                         `json:"minTerm,omitempty"`
+	MaxTerm                          int                         `json:"maxTerm,omitempty"`
+	ShipmentpointID                  string                      `json:"shipmentpointId,omitempty"`
+	ShipmentpointName                string                      `json:"shipmentpointName,omitempty"`
+	ShipmentpointAddress             string                      `json:"shipmentpointAddress,omitempty"`
+	ShipmentpointSchedule            string                      `json:"shipmentpointSchedule,omitempty"`
+	ShipmentpointPhone               string                      `json:"shipmentpointPhone,omitempty"`
+	ShipmentpointCoordinateLatitude  float64                     `json:"shipmentpointCoordinateLatitude,omitempty"`
+	ShipmentpointCoordinateLongitude float64                     `json:"shipmentpointCoordinateLongitude,omitempty"`
+	ExtraData                        StringMap                   `json:"extraData,omitempty"`
+	ItemDeclaredValues               []DeliveryItemDeclaredValue `json:"itemDeclaredValues,omitempty"`
+	Packages                         []DeliveryPackage           `json:"packages,omitempty"`
+	ID                               int                         `json:"id,omitempty"`
+	FirstName                        string                      `json:"firstName,omitempty"`
+	LastName                         string                      `json:"lastName,omitempty"`
+	Patronymic                       string                      `json:"patronymic,omitempty"`
+	Active                           bool                        `json:"active,omitempty"`
+	Email                            string                      `json:"email,omitempty"`
+	Phone                            *Phone                      `json:"phone,omitempty"`
+	Description                      string                      `json:"description,omitempty"`
+	CourierID                        string                      `json:"courierId,omitempty"`
+	ServiceType                      string                      `json:"serviceType,omitempty"`
+	Pickuppoint                      string                      `json:"pickuppoint,omitempty"`
+	ReceiverWarehouseTypeRef         string                      `json:"receiverWarehouseTypeRef,omitempty"`
+	StatusName                       string                      `json:"statusName,omitempty"`
+	Price                            float32                     `json:"price,omitempty"`
+	ReceiverCity                     string                      `json:"receiverCity,omitempty"`
+	ReceiverCityRef                  string                      `json:"receiverCityRef,omitempty"`
+	ReceiverStreet                   string                      `json:"receiverStreet,omitempty"`
+	ReceiverStreetRef                string                      `json:"receiverStreetRef,omitempty"`
+	SeatsAmount                      int                         `json:"seatsAmount,omitempty"`
+	CargoType                        string                      `json:"cargoType,omitempty"`
+	CargoDescription                 string                      `json:"cargoDescription,omitempty"`
+	CashPayerType                    string                      `json:"cashPayerType,omitempty"`
+	PaymentForm                      string                      `json:"paymentForm,omitempty"`
+	OwnershipForm                    string                      `json:"ownershipForm,omitempty"`
+	PackageNumber                    string                      `json:"packageNumber,omitempty"`
+	AccompanyingDocument             string                      `json:"accompanyingDocument,omitempty"`
+	Notes                            string                      `json:"notes,omitempty"`
+	PreferredDeliveryDate            string                      `json:"preferredDeliveryDate,omitempty"`
+	TimeInterval                     string                      `json:"timeInterval,omitempty"`
+	SaturdayDelivery                 bool                        `json:"saturdayDelivery,omitempty"`
+	DeliveryDate                     string                      `json:"deliveryDate,omitempty"`
+	DenieReason                      string                      `json:"denieReason,omitempty"`
+	BackwardDelivery                 bool                        `json:"backwardDelivery,omitempty"`
+	BackwardDeliveryCargoType        string                      `json:"backwardDeliveryCargoType,omitempty"`
+	BackwardDeliveryPayerType        string                      `json:"backwardDeliveryPayerType,omitempty"`
+	BackwardDeliveryRedeliveryString string                      `json:"backwardDeliveryRedeliveryString,omitempty"`
+	AfterpaymentOnGoodsCost          float32                     `json:"afterpaymentOnGoodsCost,omitempty"`
+	DeclaredValue                    float32                     `json:"declaredValue,omitempty"`
+	SendDate                         string                      `json:"sendDate,omitempty"`
+	DeliveryType                     string                      `json:"deliveryType,omitempty"`
+	DeliveryName                     string                      `json:"deliveryName,omitempty"`
+	PickupType                       string                      `json:"pickupType,omitempty"`
+	PickuppointDescription           string                      `json:"pickuppointDescription,omitempty"`
+	PlacesCount                      int                         `json:"placesCount,omitempty"`
+	Services                         []string                    `json:"services,omitempty"`
+	Comment                          string                      `json:"comment,omitempty"`
+}
+
+// DeliveryItemDeclaredValue type.
+type DeliveryItemDeclaredValue struct {
+	OrderProduct OrderProductIdentifier `json:"orderProduct,omitempty"`
+	Value        float32                `json:"value,omitempty"`
+}
+
+// DeliveryPackage type.
+type DeliveryPackage struct {
+	PackageID string                `json:"packageId,omitempty"`
+	Weight    float32               `json:"weight,omitempty"`
+	Length    int                   `json:"length,omitempty"`
+	Width     int                   `json:"width,omitempty"`
+	Height    int                   `json:"height,omitempty"`
+	Items     []DeliveryPackageItem `json:"items,omitempty"`
+}
+
+// DeliveryPackageItem type.
+type DeliveryPackageItem struct {
+	OrderProduct OrderProductIdentifier `json:"orderProduct,omitempty"`
+	Quantity     float32                `json:"quantity,omitempty"`
+}
+
+// OrderProductIdentifier type.
+type OrderProductIdentifier struct {
+	ID          int              `json:"id,omitempty"`
+	ExternalID  string           `json:"externalId,omitempty"`
+	ExternalIDs []CodeValueModel `json:"externalIds,omitempty"`
 }
 
 // OrderDeliveryData type.
@@ -663,25 +795,37 @@ type OrderPayment struct {
 
 // OrderItem type.
 type OrderItem struct {
-	ID                    int            `json:"id,omitempty"`
-	InitialPrice          float32        `json:"initialPrice,omitempty"`
-	PurchasePrice         float32        `json:"purchasePrice,omitempty"`
-	DiscountTotal         float32        `json:"discountTotal,omitempty"`
-	DiscountManualAmount  float32        `json:"discountManualAmount,omitempty"`
-	DiscountManualPercent float32        `json:"discountManualPercent,omitempty"`
-	ProductName           string         `json:"productName,omitempty"`
-	VatRate               string         `json:"vatRate,omitempty"`
-	CreatedAt             string         `json:"createdAt,omitempty"`
-	Quantity              float32        `json:"quantity,omitempty"`
-	Status                string         `json:"status,omitempty"`
-	Comment               string         `json:"comment,omitempty"`
-	IsCanceled            bool           `json:"isCanceled,omitempty"`
-	Offer                 Offer          `json:"offer,omitempty"`
-	Properties            Properties     `json:"properties,omitempty"`
-	PriceType             *PriceType     `json:"priceType,omitempty"`
-	BonusesChargeTotal    float32        `json:"bonusesChargeTotal,omitempty"`
-	BonusesCreditTotal    float32        `json:"bonusesCreditTotal,omitempty"`
-	Discounts             []ItemDiscount `json:"discounts,omitempty"`
+	ID                    int                     `json:"id,omitempty"`
+	ExternalID            string                  `json:"externalId,omitempty"`
+	ExternalIDs           []CodeValueModel        `json:"externalIds,omitempty"`
+	MarkingCodes          []string                `json:"markingCodes,omitempty"`
+	MarkingObjects        []MarkingObject         `json:"markingObjects,omitempty"`
+	InitialPrice          float32                 `json:"initialPrice,omitempty"`
+	PurchasePrice         float32                 `json:"purchasePrice,omitempty"`
+	DiscountTotal         float32                 `json:"discountTotal,omitempty"`
+	DiscountManualAmount  float32                 `json:"discountManualAmount,omitempty"`
+	DiscountManualPercent float32                 `json:"discountManualPercent,omitempty"`
+	ProductName           string                  `json:"productName,omitempty"`
+	VatRate               string                  `json:"vatRate,omitempty"`
+	CreatedAt             string                  `json:"createdAt,omitempty"`
+	Quantity              float32                 `json:"quantity,omitempty"`
+	Status                string                  `json:"status,omitempty"`
+	Comment               string                  `json:"comment,omitempty"`
+	Ordering              int                     `json:"ordering,omitempty"`
+	IsCanceled            bool                    `json:"isCanceled,omitempty"`
+	Offer                 Offer                   `json:"offer,omitempty"`
+	Properties            Properties              `json:"properties,omitempty"`
+	PriceType             *PriceType              `json:"priceType,omitempty"`
+	Prices                []OrderProductPriceItem `json:"prices,omitempty"`
+	BonusesChargeTotal    float32                 `json:"bonusesChargeTotal,omitempty"`
+	BonusesCreditTotal    float32                 `json:"bonusesCreditTotal,omitempty"`
+	Discounts             []ItemDiscount          `json:"discounts,omitempty"`
+}
+
+// MarkingObject type.
+type MarkingObject struct {
+	Code     string `json:"code,omitempty"`
+	Provider string `json:"provider,omitempty"`
 }
 
 type ItemDiscount struct {
@@ -736,9 +880,11 @@ type Pack struct {
 
 // PackItem type.
 type PackItem struct {
-	ID    int    `json:"id,omitempty"`
-	Order *Order `json:"order,omitempty"`
-	Offer *Offer `json:"offer,omitempty"`
+	ID          int              `json:"id,omitempty"`
+	ExternalID  string           `json:"externalId,omitempty"`
+	ExternalIDs []CodeValueModel `json:"externalIds,omitempty"`
+	Order       *Order           `json:"order,omitempty"`
+	Offer       *Offer           `json:"offer,omitempty"`
 }
 
 // PacksHistoryRecord type.

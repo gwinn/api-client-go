@@ -158,6 +158,9 @@ type InventoriesRequest struct {
 	Page   int               `url:"page,omitempty"`
 }
 
+// StoreInventoriesRequest type.
+type StoreInventoriesRequest = InventoriesRequest
+
 // ProductsGroupsRequest type.
 type ProductsGroupsRequest struct {
 	Filter ProductsGroupsFilter `url:"filter,omitempty"`
@@ -172,6 +175,9 @@ type ProductsRequest struct {
 	Page   int            `url:"page,omitempty"`
 }
 
+// StoreProductsRequest type.
+type StoreProductsRequest = ProductsRequest
+
 // ProductsPropertiesRequest type.
 type ProductsPropertiesRequest struct {
 	Filter ProductsPropertiesFilter `url:"filter,omitempty"`
@@ -183,6 +189,7 @@ type ProductsPropertiesRequest struct {
 type DeliveryTrackingRequest struct {
 	DeliveryID  string                  `json:"deliveryId,omitempty"`
 	TrackNumber string                  `json:"trackNumber,omitempty"`
+	Cost        float32                 `json:"cost,omitempty"`
 	History     []DeliveryHistoryRecord `json:"history,omitempty"`
 	ExtraData   map[string]string       `json:"extraData,omitempty"`
 }

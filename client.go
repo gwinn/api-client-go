@@ -593,7 +593,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-//	data, status, err := client.CustomersCombine(retailcrm.Customer{
+//	data, status, err := client.CustomerCreate(retailcrm.Customer{
 //		FirstName:  "Ivan",
 //		LastName:   "Ivanov",
 //		Patronymic: "Ivanovich",
@@ -5135,6 +5135,34 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 	return resp, status, nil
 }
 
+// StoreInventories returns leftover stocks and purchasing prices.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-store-inventories
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.StoreInventories(retailcrm.StoreInventoriesRequest{
+//		Filter: retailcrm.InventoriesFilter{Details: 1, ProductActive: 1},
+//		Page: 1,
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Offers {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) StoreInventories(parameters StoreInventoriesRequest) (StoreInventoriesResponse, int, error) {
+	return c.Inventories(parameters)
+}
+
 // InventoriesUpload updates the leftover stocks and purchasing prices
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-store-inventories-upload
@@ -5340,6 +5368,36 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, er
 	}
 
 	return resp, status, nil
+}
+
+// StoreProducts returns list of products and SKU.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-store-products
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.StoreProducts(retailcrm.StoreProductsRequest{
+//		Filter: retailcrm.ProductsFilter{
+//			Active:   1,
+//			MinPrice: 1000,
+//		},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Products {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) StoreProducts(parameters StoreProductsRequest) (StoreProductsResponse, int, error) {
+	return c.Products(parameters)
 }
 
 // ProductsProperties returns list of item properties, matching the specified filters

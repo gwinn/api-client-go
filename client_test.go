@@ -6180,10 +6180,11 @@ func TestClient_Packs(t *testing.T) {
 	gock.New(crmURL).
 		Get("/orders/packs").
 		MatchParam("page", "1").
+		MatchParam("filter[stores][]", "main").
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	data, status, err := c.Packs(PacksRequest{Filter: PacksFilter{}, Page: 1})
+	data, status, err := c.Packs(PacksRequest{Filter: PacksFilter{Stores: []string{"main"}}, Page: 1})
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -6265,6 +6266,52 @@ func TestClient_Inventories_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+}
+
+func TestClient_StoreInventories(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/store/inventories").
+		MatchParam("filter[details]", "1").
+		MatchParam("filter[productActive]", "1").
+		MatchParam("filter[offerActive]", "1").
+		MatchParam("filter[offerExternalId][]", "offer-1").
+		MatchParam("limit", "250").
+		Reply(http.StatusOK).
+		BodyString(`{
+			"success": true,
+			"offers": [{
+				"id": 76,
+				"externalId": "offer-1",
+				"xmlId": "xml-1",
+				"quantity": 5,
+				"stores": [{"store": "main", "quantity": 5, "purchasePrice": 10}]
+			}]
+		}`)
+
+	data, status, err := c.StoreInventories(StoreInventoriesRequest{
+		Filter: InventoriesFilter{
+			Details:         1,
+			ProductActive:   1,
+			OfferActive:     1,
+			OfferExternalID: []string{"offer-1"},
+		},
+		Limit: 250,
+	})
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err)
+	}
+
+	assert.True(t, data.Success)
+	assert.Len(t, data.Offers, 1)
+	assert.Equal(t, "main", data.Offers[0].Stores[0].Store)
 }
 
 func TestClient_Segments(t *testing.T) {
@@ -6679,6 +6726,62 @@ func TestClient_Products(t *testing.T) {
 	}
 }
 
+func TestClient_StoreProducts(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/store/products").
+		MatchParam("filter[groups][]", "10").
+		MatchParam("filter[catalogs][]", "2").
+		MatchParam("filter[offerXmlId]", "offer-xml-id").
+		MatchParam("filter[groupExternalId]", "group-external-id").
+		MatchParam("filter[sinceUpdatedAt]", "2026-05-06 12:00:00").
+		MatchParam("filter[sinceId]", "75").
+		MatchParam("filter[productType]", "product").
+		MatchParam("filter[markable]", "1").
+		Reply(http.StatusOK).
+		BodyString(`{
+			"success": true,
+			"products": [{
+				"id": 222,
+				"catalogId": 2,
+				"type": "product",
+				"externalId": "product-external-id",
+				"groups": [{"id": 10, "externalId": "group-external-id"}],
+				"offers": [{"id": 76, "xmlId": "offer-xml-id"}],
+				"markingProvider": "chestny_znak"
+			}]
+		}`)
+
+	g, status, err := c.StoreProducts(StoreProductsRequest{
+		Filter: ProductsFilter{
+			Groups:          []int{10},
+			Catalogs:        []int{2},
+			OfferXMLID:      "offer-xml-id",
+			GroupExternalID: "group-external-id",
+			SinceUpdatedAt:  "2026-05-06 12:00:00",
+			SinceID:         75,
+			ProductType:     "product",
+			Markable:        1,
+		},
+	})
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err)
+	}
+
+	assert.True(t, g.Success)
+	assert.Len(t, g.Products, 1)
+	assert.Equal(t, "group-external-id", g.Products[0].Groups[0].ExternalID)
+	assert.Equal(t, "offer-xml-id", g.Products[0].Offers[0].XMLID)
+	assert.Equal(t, "chestny_znak", g.Products[0].MarkingProvider)
+}
+
 func TestClient_Products_Fail(t *testing.T) {
 	c := client()
 
@@ -6744,7 +6847,7 @@ func TestClient_DeliveryTracking(t *testing.T) {
 	defer gock.Off()
 
 	p := url.Values{
-		"statusUpdate": {`[{"deliveryId":"123","history":[{"code":"1","updatedAt":"2020-01-01T00:00:00:000"}]}]`},
+		"statusUpdate": {`[{"deliveryId":"123","cost":99.5,"history":[{"code":"1","updatedAt":"2020-01-01T00:00:00:000"}],"extraData":{"gate":"A1"}}]`},
 	}
 
 	gock.New(crmURL).
@@ -6756,10 +6859,12 @@ func TestClient_DeliveryTracking(t *testing.T) {
 
 	g, status, err := c.DeliveryTracking([]DeliveryTrackingRequest{{
 		DeliveryID: "123",
+		Cost:       99.5,
 		History: []DeliveryHistoryRecord{{
 			Code:      "1",
 			UpdatedAt: "2020-01-01T00:00:00:000",
 		}},
+		ExtraData: map[string]string{"gate": "A1"},
 	}}, "subcode")
 
 	if err != nil {

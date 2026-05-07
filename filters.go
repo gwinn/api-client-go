@@ -298,7 +298,7 @@ type SegmentsFilter struct {
 // PacksFilter type.
 type PacksFilter struct {
 	Ids                []int    `url:"ids,omitempty,brackets"`
-	Stores             []string `url:"stores,omitempty"`
+	Stores             []string `url:"stores,omitempty,brackets"`
 	ItemID             int      `url:"itemId,omitempty"`
 	OfferXMLID         string   `url:"offerXmlId,omitempty"`
 	OfferExternalID    string   `url:"offerExternalId,omitempty"`
@@ -338,6 +338,7 @@ type ProductsFilter struct {
 	Ids              []int             `url:"ids,omitempty,brackets"`
 	OfferIds         []int             `url:"offerIds,omitempty,brackets"`
 	Active           int               `url:"active,omitempty"`
+	Markable         int               `url:"markable,omitempty"`
 	Recommended      int               `url:"recommended,omitempty"`
 	Novelty          int               `url:"novelty,omitempty"`
 	Stock            int               `url:"stock,omitempty"`
@@ -348,7 +349,7 @@ type ProductsFilter struct {
 	MinPurchasePrice float32           `url:"minPurchasePrice,omitempty"`
 	MaxPrice         float32           `url:"maxPrice,omitempty"`
 	MinPrice         float32           `url:"minPrice,omitempty"`
-	Groups           string            `url:"groups,omitempty"`
+	Groups           []int             `url:"groups,omitempty,brackets"`
 	Name             string            `url:"name,omitempty"`
 	ClassSegment     string            `url:"classSegment,omitempty"`
 	XMLID            string            `url:"xmlId,omitempty"`
@@ -357,7 +358,13 @@ type ProductsFilter struct {
 	URL              string            `url:"url,omitempty"`
 	URLLike          string            `url:"urlLike,omitempty"`
 	PriceType        string            `url:"priceType,omitempty"`
+	Catalogs         []int             `url:"catalogs,omitempty,brackets"`
 	OfferExternalID  string            `url:"offerExternalId,omitempty"`
+	OfferXMLID       string            `url:"offerXmlId,omitempty"`
+	GroupExternalID  string            `url:"groupExternalId,omitempty"`
+	SinceUpdatedAt   string            `url:"sinceUpdatedAt,omitempty"`
+	SinceID          int               `url:"sinceId,omitempty"`
+	ProductType      string            `url:"productType,omitempty"`
 	Sites            []string          `url:"sites,omitempty,brackets"`
 	Properties       map[string]string `url:"properties,omitempty,brackets"`
 }
