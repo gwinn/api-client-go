@@ -327,8 +327,8 @@ type PriceTypesResponse struct {
 
 // ProductStatusesResponse type.
 type ProductStatusesResponse struct {
-	Success         bool                     `json:"success"`
-	ProductStatuses map[string]ProductStatus `json:"productStatuses,omitempty"`
+	Success         bool            `json:"success"`
+	ProductStatuses []ProductStatus `json:"productStatuses,omitempty"`
 }
 
 // StatusesResponse type.

@@ -152,6 +152,8 @@ type OrdersFilter struct {
 	Customer                       string            `url:"customer,omitempty"`
 	CustomerID                     string            `url:"customerId,omitempty"`
 	CustomerExternalID             string            `url:"customerExternalId,omitempty"`
+	Segment                        string            `url:"segment,omitempty"`
+	CustomerType                   string            `url:"customerType,omitempty"`
 	Countries                      []string          `url:"countries,omitempty,brackets"`
 	City                           string            `url:"city,omitempty"`
 	Region                         string            `url:"region,omitempty"`
@@ -165,6 +167,7 @@ type OrdersFilter struct {
 	MinPrice                       string            `url:"minPrice,omitempty"`
 	MaxPrice                       string            `url:"maxPrice,omitempty"`
 	Product                        string            `url:"product,omitempty"`
+	ProductSearchType              string            `url:"productSearchType,omitempty"`
 	Vip                            int               `url:"vip,omitempty"`
 	Bad                            int               `url:"bad,omitempty"`
 	Attachments                    int               `url:"attachments,omitempty"`
@@ -176,6 +179,7 @@ type OrdersFilter struct {
 	ReceiptFiscalDocumentAttribute int               `url:"receiptFiscalDocumentAttribute,omitempty"`
 	ReceiptStatus                  int               `url:"receiptStatus,omitempty"`
 	ReceiptOperation               int               `url:"receiptOperation,omitempty"`
+	ReceiptOrderStatus             string            `url:"receiptOrderStatus,omitempty"`
 	MinDeliveryCost                string            `url:"minDeliveryCost,omitempty"`
 	MaxDeliveryCost                string            `url:"maxDeliveryCost,omitempty"`
 	MinDeliveryNetCost             string            `url:"minDeliveryNetCost,omitempty"`
@@ -189,6 +193,9 @@ type OrdersFilter struct {
 	MinCostSumm                    string            `url:"minCostSumm,omitempty"`
 	MaxCostSumm                    string            `url:"maxCostSumm,omitempty"`
 	TrackNumber                    string            `url:"trackNumber,omitempty"`
+	DeliveryExternalID             string            `url:"deliveryExternalId,omitempty"`
+	CompanyName                    string            `url:"companyName,omitempty"`
+	DeliveryAddressNotes           string            `url:"deliveryAddressNotes,omitempty"`
 	ContragentName                 string            `url:"contragentName,omitempty"`
 	ContragentInn                  string            `url:"contragentInn,omitempty"`
 	ContragentKpp                  string            `url:"contragentKpp,omitempty"`
@@ -199,14 +206,20 @@ type OrdersFilter struct {
 	OrderTypes                     []string          `url:"orderTypes,omitempty,brackets"`
 	PaymentStatuses                []string          `url:"paymentStatuses,omitempty,brackets"`
 	PaymentTypes                   []string          `url:"paymentTypes,omitempty,brackets"`
+	DeliveryStates                 []string          `url:"deliveryStates,omitempty,brackets"`
 	DeliveryTypes                  []string          `url:"deliveryTypes,omitempty,brackets"`
 	DeliveryServices               []string          `url:"deliveryServices,omitempty,brackets"`
 	OrderMethods                   []string          `url:"orderMethods,omitempty,brackets"`
+	ProductGroups                  []int             `url:"productGroups,omitempty,brackets"`
 	ShipmentStores                 []string          `url:"shipmentStores,omitempty,brackets"`
 	Couriers                       []string          `url:"couriers,omitempty,brackets"`
 	Managers                       []string          `url:"managers,omitempty,brackets"`
 	ManagerGroups                  []string          `url:"managerGroups,omitempty,brackets"`
+	MGChannels                     []int             `url:"mgChannels,omitempty,brackets"`
 	Sites                          []string          `url:"sites,omitempty,brackets"`
+	TasksCounts                    int               `url:"tasksCounts,omitempty"`
+	Tags                           []string          `url:"tags,omitempty,brackets"`
+	AttachedTags                   []string          `url:"attachedTags,omitempty,brackets"`
 	CreatedAtFrom                  string            `url:"createdAtFrom,omitempty"`
 	CreatedAtTo                    string            `url:"createdAtTo,omitempty"`
 	PaidAtFrom                     string            `url:"paidAtFrom,omitempty"`
@@ -230,6 +243,7 @@ type OrdersFilter struct {
 	ShipmentDateFrom               string            `url:"shipmentDateFrom,omitempty"`
 	ShipmentDateTo                 string            `url:"shipmentDateTo,omitempty"`
 	ExtendedStatus                 []string          `url:"extendedStatus,omitempty,brackets"`
+	StatusHistorySequence          []string          `url:"statusHistorySequence,omitempty,brackets"`
 	SourceName                     string            `url:"sourceName,omitempty"`
 	MediumName                     string            `url:"mediumName,omitempty"`
 	CampaignName                   string            `url:"campaignName,omitempty"`

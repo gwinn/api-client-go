@@ -310,18 +310,24 @@ type CartCustomer struct {
 }
 
 type Company struct {
-	ID           int              `json:"id,omitempty"`
-	IsMain       bool             `json:"isMain,omitempty"`
-	ExternalID   string           `json:"externalId,omitempty"`
-	Customer     *Customer        `json:"customer,omitempty"`
-	Active       bool             `json:"active,omitempty"`
-	Name         string           `json:"name,omitempty"`
-	Brand        string           `json:"brand,omitempty"`
-	Site         string           `json:"site,omitempty"`
-	CreatedAt    string           `json:"createdAt,omitempty"`
-	Contragent   *Contragent      `json:"contragent,omitempty"`
-	Address      *IdentifiersPair `json:"address,omitempty"`
-	CustomFields CustomFieldMap   `json:"customFields,omitempty"`
+	ID            int              `json:"id,omitempty"`
+	IsMain        bool             `json:"isMain,omitempty"`
+	ExternalID    string           `json:"externalId,omitempty"`
+	Customer      *Customer        `json:"customer,omitempty"`
+	Active        bool             `json:"active,omitempty"`
+	Name          string           `json:"name,omitempty"`
+	Brand         string           `json:"brand,omitempty"`
+	Site          string           `json:"site,omitempty"`
+	CreatedAt     string           `json:"createdAt,omitempty"`
+	Contragent    *Contragent      `json:"contragent,omitempty"`
+	Address       *IdentifiersPair `json:"address,omitempty"`
+	CustomFields  CustomFieldMap   `json:"customFields,omitempty"`
+	AvgMarginSumm float32          `json:"avgMarginSumm,omitempty"`
+	MarginSumm    float32          `json:"marginSumm,omitempty"`
+	TotalSumm     float32          `json:"totalSumm,omitempty"`
+	AverageSumm   float32          `json:"averageSumm,omitempty"`
+	OrdersCount   int              `json:"ordersCount,omitempty"`
+	CostSumm      float32          `json:"costSumm,omitempty"`
 }
 
 // CorporateCustomerNote type.
@@ -455,7 +461,7 @@ type Order struct {
 // LinkedOrder type.
 type LinkedOrder struct {
 	Number     string `json:"number,omitempty"`
-	ExternalID string `json:"externalID,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
 	ID         int    `json:"id,omitempty"`
 }
 
@@ -970,6 +976,7 @@ type Offer struct {
 	ID            int          `json:"id,omitempty"`
 	ExternalID    string       `json:"externalId,omitempty"`
 	Name          string       `json:"name,omitempty"`
+	DisplayName   string       `json:"displayName,omitempty"`
 	XMLID         string       `json:"xmlId,omitempty"`
 	Site          string       `json:"site,omitempty"`
 	Article       string       `json:"article,omitempty"`

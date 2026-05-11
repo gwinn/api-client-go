@@ -2592,6 +2592,88 @@ func TestClient_OrdersOrders(t *testing.T) {
 	}
 }
 
+func TestClient_OrdersActualDTOFields(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/orders").
+		MatchParam("filter[segment]", "vip").
+		MatchParam("filter[customerType]", "customer").
+		MatchParam("filter[productSearchType]", "name").
+		MatchParam("filter[statusHistorySequence][]", "new").
+		MatchParam("filter[deliveryStates][]", "processing").
+		MatchParam("filter[deliveryExternalId]", "delivery-1").
+		MatchParam("filter[companyName]", "RetailCRM").
+		MatchParam("filter[deliveryAddressNotes]", "front door").
+		MatchParam("filter[productGroups][]", "12").
+		MatchParam("filter[receiptOrderStatus]", "done").
+		MatchParam("filter[mgChannels][]", "7").
+		MatchParam("filter[tasksCounts]", "2").
+		MatchParam("filter[tags][]", "priority").
+		MatchParam("filter[attachedTags][]", "new-client").
+		Reply(http.StatusOK).
+		BodyString(`{
+			"success": true,
+			"orders": [{
+				"id": 1,
+				"company": {
+					"averageSumm": 1000,
+					"avgMarginSumm": 200,
+					"costSumm": 300,
+					"marginSumm": 400,
+					"ordersCount": 5,
+					"totalSumm": 6000
+				},
+				"items": [{
+					"offer": {
+						"displayName": "SKU display name"
+					}
+				}],
+				"links": [{
+					"order": {
+						"id": 2,
+						"number": "1002",
+						"externalId": "external-2"
+					}
+				}]
+			}]
+		}`)
+
+	data, status, err := c.Orders(OrdersRequest{
+		Filter: OrdersFilter{
+			Segment:               "vip",
+			CustomerType:          "customer",
+			ProductSearchType:     "name",
+			StatusHistorySequence: []string{"new"},
+			DeliveryStates:        []string{"processing"},
+			DeliveryExternalID:    "delivery-1",
+			CompanyName:           "RetailCRM",
+			DeliveryAddressNotes:  "front door",
+			ProductGroups:         []int{12},
+			ReceiptOrderStatus:    "done",
+			MGChannels:            []int{7},
+			TasksCounts:           2,
+			Tags:                  []string{"priority"},
+			AttachedTags:          []string{"new-client"},
+		},
+	})
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, data.Success)
+	assert.Len(t, data.Orders, 1)
+	assert.Equal(t, float32(1000), data.Orders[0].Company.AverageSumm)
+	assert.Equal(t, float32(200), data.Orders[0].Company.AvgMarginSumm)
+	assert.Equal(t, float32(300), data.Orders[0].Company.CostSumm)
+	assert.Equal(t, float32(400), data.Orders[0].Company.MarginSumm)
+	assert.Equal(t, 5, data.Orders[0].Company.OrdersCount)
+	assert.Equal(t, float32(6000), data.Orders[0].Company.TotalSumm)
+	assert.Equal(t, "SKU display name", data.Orders[0].Items[0].Offer.DisplayName)
+	assert.Equal(t, "external-2", data.Orders[0].Links[0].Order.ExternalID)
+}
+
 func TestClient_OrdersOrders_Fail(t *testing.T) {
 	c := client()
 
@@ -3190,7 +3272,26 @@ func TestClient_OrderChange(t *testing.T) {
 		Get(fmt.Sprintf("/orders/%s", f.ExternalID)).
 		MatchParam("by", ByExternalID).
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true,
+			"order": {
+				"id": 1,
+				"company": {
+					"averageSumm": 1000,
+					"ordersCount": 5
+				},
+				"items": [{
+					"offer": {
+						"displayName": "SKU display name"
+					}
+				}],
+				"links": [{
+					"order": {
+						"externalId": "external-2"
+					}
+				}]
+			}
+		}`)
 
 	data, status, err := c.Order(f.ExternalID, ByExternalID, "")
 	if err != nil {
@@ -3204,6 +3305,11 @@ func TestClient_OrderChange(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+
+	assert.Equal(t, float32(1000), data.Order.Company.AverageSumm)
+	assert.Equal(t, 5, data.Order.Company.OrdersCount)
+	assert.Equal(t, "SKU display name", data.Order.Items[0].Offer.DisplayName)
+	assert.Equal(t, "external-2", data.Order.Links[0].Order.ExternalID)
 }
 
 func TestClient_OrderChange_Fail(t *testing.T) {
@@ -4726,7 +4832,19 @@ func TestClient_ProductStatuses(t *testing.T) {
 	gock.New(crmURL).
 		Get("/reference/product-statuses").
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true,
+			"productStatuses": [{
+				"code": "available",
+				"ordering": 10,
+				"active": true,
+				"createdAt": "2026-05-11 10:00:00",
+				"orderStatusByProductStatus": "complete",
+				"orderStatusForProductStatus": "assembled",
+				"cancelStatus": false,
+				"name": "Available"
+			}]
+		}`)
 
 	data, st, err := c.ProductStatuses()
 	if err != nil {
@@ -4740,6 +4858,16 @@ func TestClient_ProductStatuses(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+
+	assert.Len(t, data.ProductStatuses, 1)
+	assert.Equal(t, "available", data.ProductStatuses[0].Code)
+	assert.Equal(t, 10, data.ProductStatuses[0].Ordering)
+	assert.True(t, data.ProductStatuses[0].Active)
+	assert.Equal(t, "2026-05-11 10:00:00", data.ProductStatuses[0].CreatedAt)
+	assert.Equal(t, "complete", data.ProductStatuses[0].OrderStatusByProductStatus)
+	assert.Equal(t, "assembled", data.ProductStatuses[0].OrderStatusForProductStatus)
+	assert.False(t, data.ProductStatuses[0].CancelStatus)
+	assert.Equal(t, "Available", data.ProductStatuses[0].Name)
 }
 
 func TestClient_Statuses(t *testing.T) {
