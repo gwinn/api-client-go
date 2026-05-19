@@ -391,6 +391,7 @@ type OrderPayments map[string]OrderPayment
 type StringMap map[string]string
 type CustomFieldMap map[string]interface{}
 type Properties map[string]Property
+type ConfigurationTranslation map[string]string
 
 // Order type.
 type Order struct {
@@ -1651,17 +1652,24 @@ type Plate struct {
 
 // DeliveryDataField type.
 type DeliveryDataField struct {
-	Code            string   `json:"code,omitempty"`
-	Label           string   `json:"label,omitempty"`
-	Hint            string   `json:"hint,omitempty"`
-	Type            string   `json:"type,omitempty"`
-	AutocompleteURL string   `json:"autocompleteUrl,omitempty"`
-	Multiple        bool     `json:"multiple,omitempty"`
-	Choices         []string `json:"choices,omitempty"`
-	Visible         bool     `json:"visible,omitempty"`
-	Required        bool     `json:"required,omitempty"`
-	AffectsCost     bool     `json:"affectsCost,omitempty"`
-	Editable        bool     `json:"editable,omitempty"`
+	Code            string                    `json:"code,omitempty"`
+	Label           string                    `json:"label,omitempty"`
+	Hint            string                    `json:"hint,omitempty"`
+	Type            string                    `json:"type,omitempty"`
+	AutocompleteURL string                    `json:"autocompleteUrl,omitempty"`
+	Multiple        bool                      `json:"multiple,omitempty"`
+	Choices         []string                  `json:"choices,omitempty"`
+	ChoiceList      []DeliveryDataFieldChoice `json:"-"`
+	Visible         bool                      `json:"visible,omitempty"`
+	Required        bool                      `json:"required,omitempty"`
+	AffectsCost     bool                      `json:"affectsCost,omitempty"`
+	Editable        bool                      `json:"editable,omitempty"`
+}
+
+// DeliveryDataFieldChoice type.
+type DeliveryDataFieldChoice struct {
+	Value string `json:"value,omitempty"`
+	Label string `json:"label,omitempty"`
 }
 
 // DeliverySettings type.
@@ -1744,13 +1752,14 @@ type EmbedJS struct {
 
 // EmbedJSPage type.
 type EmbedJSPage struct {
-	Code               string            `json:"code,omitempty"`
-	Menu               string            `json:"menu,omitempty"`
-	ParentMenuItemCode string            `json:"parentMenuItemCode,omitempty"`
-	MenuItemOrdering   int               `json:"menuItemOrdering,omitempty"`
-	MenuItemTitle      map[string]string `json:"menuItemTitle,omitempty"`
-	PageHelpLink       string            `json:"pageHelpLink,omitempty"`
-	IsSettingsMainPage bool              `json:"isSettingsMainPage,omitempty"`
+	Code               string                   `json:"code,omitempty"`
+	Menu               string                   `json:"menu,omitempty"`
+	ParentMenuItemCode string                   `json:"parentMenuItemCode,omitempty"`
+	MenuItemOrdering   int                      `json:"menuItemOrdering,omitempty"`
+	MenuItemTitle      map[string]string        `json:"menuItemTitle,omitempty"`
+	PageHelpLink       string                   `json:"pageHelpLink,omitempty"`
+	PageHelpLinks      ConfigurationTranslation `json:"-"`
+	IsSettingsMainPage bool                     `json:"isSettingsMainPage,omitempty"`
 }
 
 // Telephony type.

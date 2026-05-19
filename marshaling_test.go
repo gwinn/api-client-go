@@ -50,6 +50,268 @@ func TestStringOrNumber_MarshalJSON(t *testing.T) {
 	assert.JSONEq(t, `{"code":"main","ordering":"10"}`, string(data))
 }
 
+func TestResponseInfo_UnmarshalJSON(t *testing.T) {
+	var fromObject ResponseInfo
+	require.NoError(t, json.Unmarshal([]byte(`{
+		"deliveryType": {
+			"id": 38,
+			"code": "sdek-v-2-podkliuchenie-1"
+		},
+		"billingInfo": {
+			"price": 0,
+			"currency": {
+				"name": "Рубль",
+				"shortName": "руб.",
+				"code": "RUB"
+			},
+			"billingType": "fixed"
+		}
+	}`), &fromObject))
+
+	assert.Equal(t, 38, fromObject.DeliveryTypeInfo.ID)
+	assert.Equal(t, "sdek-v-2-podkliuchenie-1", fromObject.DeliveryTypeInfo.Code)
+	require.NotNil(t, fromObject.BillingInfo)
+	require.NotNil(t, fromObject.BillingInfo.Currency)
+	assert.Equal(t, "RUB", fromObject.BillingInfo.Currency.Code)
+
+	var fromArray ResponseInfo
+	require.NoError(t, json.Unmarshal([]byte(`[]`), &fromArray))
+	assert.Equal(t, ResponseInfo{}, fromArray)
+
+	fromArray = ResponseInfo{
+		BillingInfo: &BillingInfo{BillingType: "fixed"},
+	}
+	require.NoError(t, json.Unmarshal([]byte(`null`), &fromArray))
+	assert.Equal(t, ResponseInfo{}, fromArray)
+}
+
+func TestIntegrationModuleEditResponse_UnmarshalJSON(t *testing.T) {
+	var fromObject IntegrationModuleEditResponse
+	require.NoError(t, json.Unmarshal([]byte(`{
+		"success": true,
+		"info": {
+			"billingInfo": {
+				"billingType": "fixed"
+			}
+		}
+	}`), &fromObject))
+
+	assert.True(t, fromObject.Success)
+	assert.Equal(t, "fixed", fromObject.Info.BillingInfo.BillingType)
+	assert.JSONEq(t, `{"billingInfo":{"billingType":"fixed"}}`, string(fromObject.InfoRaw))
+	assert.Empty(t, fromObject.InfoList)
+
+	var fromEmptyArray IntegrationModuleEditResponse
+	require.NoError(t, json.Unmarshal([]byte(`{"success": true, "info": []}`), &fromEmptyArray))
+
+	assert.True(t, fromEmptyArray.Success)
+	assert.Equal(t, ResponseInfo{}, fromEmptyArray.Info)
+	assert.JSONEq(t, `[]`, string(fromEmptyArray.InfoRaw))
+	assert.Empty(t, fromEmptyArray.InfoList)
+
+	var fromArray IntegrationModuleEditResponse
+	require.NoError(t, json.Unmarshal([]byte(`{
+		"success": true,
+		"info": [
+			{
+				"deliveryType": {
+					"id": 38,
+					"code": "sdek-v-2-podkliuchenie-1"
+				}
+			}
+		]
+	}`), &fromArray))
+
+	require.Len(t, fromArray.InfoList, 1)
+	assert.Equal(t, 38, fromArray.InfoList[0].DeliveryTypeInfo.ID)
+	assert.Equal(t, fromArray.InfoList[0], fromArray.Info)
+}
+
+func TestIntegrationModule_MarshalNewAndLegacyFields(t *testing.T) {
+	active := true
+
+	module := IntegrationModule{
+		Code:               "module-code",
+		IntegrationCode:    "integration-code",
+		Active:             &active,
+		AvailableCountries: []string{"RU"},
+		Integrations: &Integrations{
+			Delivery: &Delivery{
+				DeliveryDataFieldList: []DeliveryDataField{
+					{
+						Code: "terminal",
+						Type: "choice",
+						ChoiceList: []DeliveryDataFieldChoice{
+							{
+								Value: "terminal-1",
+								Label: "Terminal 1",
+							},
+						},
+					},
+				},
+			},
+			Payment: &PaymentModule{
+				Actions:      PaymentModuleActions{Create: "/create"},
+				InvoiceTypes: []string{"link"},
+				Shops: []PaymentModuleShop{
+					{
+						Code:   "main",
+						Name:   "Main shop",
+						Active: true,
+					},
+				},
+			},
+			EmbedJS: &EmbedJS{
+				Pages: []EmbedJSPage{
+					{
+						Code:          "settings",
+						MenuItemTitle: map[string]string{"ru": "Настройки"},
+						PageHelpLinks: ConfigurationTranslation{"ru": "https://example.com/help"},
+					},
+				},
+			},
+		},
+	}
+
+	data, err := json.Marshal(module)
+	require.NoError(t, err)
+	assert.JSONEq(t, `{
+		"code": "module-code",
+		"integrationCode": "integration-code",
+		"active": true,
+		"availableCountries": ["RU"],
+		"integrations": {
+			"delivery": {
+				"deliveryDataFieldList": [
+					{
+						"code": "terminal",
+						"type": "choice",
+						"choices": [
+							{
+								"value": "terminal-1",
+								"label": "Terminal 1"
+							}
+						]
+					}
+				]
+			},
+			"payment": {
+				"actions": {
+					"create": "/create"
+				},
+				"invoiceTypes": ["link"],
+				"shops": [
+					{
+						"code": "main",
+						"name": "Main shop",
+						"active": true
+					}
+				]
+			},
+			"embedJs": {
+				"pages": [
+					{
+						"code": "settings",
+						"menuItemTitle": {
+							"ru": "Настройки"
+						},
+						"pageHelpLink": {
+							"ru": "https://example.com/help"
+						}
+					}
+				]
+			}
+		}
+	}`, string(data))
+
+	var decoded IntegrationModule
+	require.NoError(t, json.Unmarshal(data, &decoded))
+	require.NotNil(t, decoded.Integrations)
+	require.NotNil(t, decoded.Integrations.Delivery)
+	require.NotNil(t, decoded.Integrations.EmbedJS)
+
+	deliveryField := decoded.Integrations.Delivery.DeliveryDataFieldList[0]
+	assert.Equal(t, []string{"terminal-1"}, deliveryField.Choices)
+	require.Len(t, deliveryField.ChoiceList, 1)
+	assert.Equal(t, "Terminal 1", deliveryField.ChoiceList[0].Label)
+
+	page := decoded.Integrations.EmbedJS.Pages[0]
+	assert.Equal(t, "https://example.com/help", page.PageHelpLink)
+	assert.Equal(t, ConfigurationTranslation{"ru": "https://example.com/help"}, page.PageHelpLinks)
+
+	legacy := IntegrationModule{
+		Integrations: &Integrations{
+			Telephony: &Telephony{
+				AdditionalCodes: []AdditionalCode{
+					{
+						UserID: "10",
+						Code:   "101",
+					},
+				},
+			},
+			Delivery: &Delivery{
+				DeliveryDataFieldList: []DeliveryDataField{
+					{
+						Code:    "terminal",
+						Choices: []string{"terminal-1"},
+					},
+				},
+			},
+			EmbedJS: &EmbedJS{
+				Pages: []EmbedJSPage{
+					{
+						Code:          "settings",
+						MenuItemTitle: map[string]string{"ru": "Настройки"},
+						PageHelpLink:  "https://example.com/help",
+					},
+				},
+			},
+		},
+	}
+
+	data, err = json.Marshal(legacy)
+	require.NoError(t, err)
+	assert.JSONEq(t, `{
+		"integrations": {
+			"telephony": {
+				"additionalCodes": [
+					{
+						"userId": "10",
+						"code": "101"
+					}
+				]
+			},
+			"delivery": {
+				"deliveryDataFieldList": [
+					{
+						"code": "terminal",
+						"choices": ["terminal-1"]
+					}
+				]
+			},
+			"embedJs": {
+				"pages": [
+					{
+						"code": "settings",
+						"menuItemTitle": {
+							"ru": "Настройки"
+						},
+						"pageHelpLink": "https://example.com/help"
+					}
+				]
+			}
+		}
+	}`, string(data))
+}
+
+func TestAdditionalCode_UnmarshalUserIDNumber(t *testing.T) {
+	var additionalCode AdditionalCode
+
+	require.NoError(t, json.Unmarshal([]byte(`{"userId":10,"code":"101"}`), &additionalCode))
+	assert.Equal(t, "10", additionalCode.UserID)
+	assert.Equal(t, "101", additionalCode.Code)
+}
+
 func TestStoreOrdering_UnmarshalStringOrNumber(t *testing.T) {
 	var fromString Store
 	require.NoError(t, json.Unmarshal([]byte(`{"ordering":"10"}`), &fromString))

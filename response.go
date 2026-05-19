@@ -472,8 +472,10 @@ type UpdateScopesResponse struct {
 
 // IntegrationModuleEditResponse type.
 type IntegrationModuleEditResponse struct {
-	Success bool         `json:"success"`
-	Info    ResponseInfo `json:"info,omitempty"`
+	Success  bool           `json:"success"`
+	Info     ResponseInfo   `json:"info,omitempty"`
+	InfoList []ResponseInfo `json:"-"`
+	InfoRaw  []byte         `json:"-"`
 }
 
 // PaymentCheckResponse type.

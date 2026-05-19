@@ -6861,6 +6861,12 @@ func TestClient_IntegrationModule(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
+	assert.Equal(t, 38, m.Info.DeliveryTypeInfo.ID)
+	assert.Equal(t, "sdek-v-2-podkliuchenie-1", m.Info.DeliveryTypeInfo.Code)
+	require.NotNil(t, m.Info.BillingInfo)
+	require.NotNil(t, m.Info.BillingInfo.Currency)
+	assert.Equal(t, "RUB", m.Info.BillingInfo.Currency.Code)
+
 	gock.New(crmURL).
 		Get(fmt.Sprintf("/integration-modules/%s", code)).
 		Reply(200).
@@ -6878,6 +6884,42 @@ func TestClient_IntegrationModule(t *testing.T) {
 	if g.Success != true {
 		t.Errorf("%v", err)
 	}
+}
+
+func TestClient_IntegrationModule_InfoArray(t *testing.T) {
+	c := client()
+
+	code := RandomString(8)
+
+	defer gock.Off()
+
+	integrationModule := IntegrationModule{
+		Code:            code,
+		IntegrationCode: code,
+	}
+
+	jsonData := fmt.Sprintf(
+		`{"code":"%s","integrationCode":"%s"}`,
+		code,
+		code,
+	)
+
+	pr := url.Values{
+		"integrationModule": {jsonData},
+	}
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code)).
+		MatchType("url").
+		BodyString(pr.Encode()).
+		Reply(200).
+		BodyString(`{"success": true, "info": []}`)
+
+	m, status, err := c.IntegrationModuleEdit(integrationModule)
+	require.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, m.Success)
+	assert.Equal(t, ResponseInfo{}, m.Info)
 }
 
 func TestClient_IntegrationModule_Fail(t *testing.T) {
