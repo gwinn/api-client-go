@@ -744,6 +744,13 @@ type DeliveryCalculation struct {
 	Description string  `json:"description,omitempty"`
 }
 
+// FailedDeliveryCalculation type.
+type FailedDeliveryCalculation struct {
+	Code    string `json:"code,omitempty"`
+	Reason  string `json:"reason,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
 // SetCartItem type.
 type SetCartItem struct {
 	Quantity float64      `json:"quantity,omitempty"`

@@ -6590,6 +6590,7 @@ func TestClient_StoreInventories(t *testing.T) {
 		MatchParam("filter[details]", "1").
 		MatchParam("filter[productActive]", "1").
 		MatchParam("filter[offerActive]", "1").
+		MatchParam("filter[productExternalIds][]", "product-1").
 		MatchParam("filter[offerExternalId][]", "offer-1").
 		MatchParam("limit", "250").
 		Reply(http.StatusOK).
@@ -6606,10 +6607,11 @@ func TestClient_StoreInventories(t *testing.T) {
 
 	data, status, err := c.StoreInventories(StoreInventoriesRequest{
 		Filter: InventoriesFilter{
-			Details:         1,
-			ProductActive:   1,
-			OfferActive:     1,
-			OfferExternalID: []string{"offer-1"},
+			Details:            1,
+			ProductActive:      1,
+			ProductExternalIDs: []string{"product-1"},
+			OfferActive:        1,
+			OfferExternalID:    []string{"offer-1"},
 		},
 		Limit: 250,
 	})
@@ -7089,6 +7091,8 @@ func TestClient_StoreProducts(t *testing.T) {
 		Get("/store/products").
 		MatchParam("filter[groups][]", "10").
 		MatchParam("filter[catalogs][]", "2").
+		MatchParam("filter[externalIds][]", "product-external-id").
+		MatchParam("filter[articles][]", "product-article").
 		MatchParam("filter[offerXmlId]", "offer-xml-id").
 		MatchParam("filter[groupExternalId]", "group-external-id").
 		MatchParam("filter[sinceUpdatedAt]", "2026-05-06 12:00:00").
@@ -7113,6 +7117,8 @@ func TestClient_StoreProducts(t *testing.T) {
 		Filter: ProductsFilter{
 			Groups:          []int{10},
 			Catalogs:        []int{2},
+			ExternalIDs:     []string{"product-external-id"},
+			Articles:        []string{"product-article"},
 			OfferXMLID:      "offer-xml-id",
 			GroupExternalID: "group-external-id",
 			SinceUpdatedAt:  "2026-05-06 12:00:00",
@@ -7386,7 +7392,11 @@ func TestClient_DeliveryCalculate(t *testing.T) {
 		Post(prefix + "/delivery/calculate").
 		BodyString(p.Encode()).
 		Reply(http.StatusOK).
-		BodyString(`{"success": true, "calculations": [{"code": "courier", "available": true, "vatRate": "20", "cost": 350.5}]}`)
+		BodyString(`{
+			"success": true,
+			"calculations": [{"code": "courier", "available": true, "vatRate": "20", "cost": 350.5}],
+			"failedCalculations": [{"code": "pickup", "reason": "delivery_type_unavailable", "message": "Delivery type is unavailable"}]
+		}`)
 
 	res, status, err := client().DeliveryCalculate(req)
 
@@ -7404,6 +7414,10 @@ func TestClient_DeliveryCalculate(t *testing.T) {
 	assert.True(t, res.Calculations[0].Available)
 	assert.Equal(t, "20", res.Calculations[0].VatRate)
 	assert.Equal(t, float32(350.5), res.Calculations[0].Cost)
+	assert.Len(t, res.FailedCalculations, 1)
+	assert.Equal(t, "pickup", res.FailedCalculations[0].Code)
+	assert.Equal(t, "delivery_type_unavailable", res.FailedCalculations[0].Reason)
+	assert.Equal(t, "Delivery type is unavailable", res.FailedCalculations[0].Message)
 }
 
 func TestClient_DeliveryCalculate_Fail(t *testing.T) {
@@ -9732,6 +9746,7 @@ func TestClient_StoreOffers(t *testing.T) {
 		MatchParam("filter[ids][]", "76").
 		MatchParam("filter[externalIds][]", "offer-external-id").
 		MatchParam("filter[xmlIds][]", "offer-xml-id").
+		MatchParam("filter[articles][]", "Артикул").
 		MatchParam("filter[name]", "Название").
 		MatchParam("filter[sites][]", "main").
 		MatchParam("filter[catalogs][]", "2").
@@ -9754,6 +9769,7 @@ func TestClient_StoreOffers(t *testing.T) {
 			Ids:         []int{76},
 			ExternalIDs: []string{"offer-external-id"},
 			XMLIDs:      []string{"offer-xml-id"},
+			Articles:    []string{"Артикул"},
 			Name:        "Название",
 			Sites:       []string{"main"},
 			Catalogs:    []int{2},

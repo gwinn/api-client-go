@@ -326,17 +326,18 @@ type PacksFilter struct {
 
 // InventoriesFilter type.
 type InventoriesFilter struct {
-	Ids               []int    `url:"ids,omitempty,brackets"`
-	Sites             []string `url:"sites,omitempty,brackets"`
-	Catalogs          []int    `url:"catalogs,omitempty,brackets"`
-	ProductExternalID string   `url:"productExternalId,omitempty"`
-	ProductArticle    []string `url:"productArticle,omitempty,brackets"`
-	ProductActive     int      `url:"productActive,omitempty"`
-	OfferExternalID   []string `url:"offerExternalId,omitempty,brackets"`
-	OfferXMLID        []string `url:"offerXmlId,omitempty,brackets"`
-	OfferArticle      []string `url:"offerArticle,omitempty,brackets"`
-	OfferActive       int      `url:"offerActive,omitempty"`
-	Details           int      `url:"details,omitempty"`
+	Ids                []int    `url:"ids,omitempty,brackets"`
+	Sites              []string `url:"sites,omitempty,brackets"`
+	Catalogs           []int    `url:"catalogs,omitempty,brackets"`
+	ProductExternalID  string   `url:"productExternalId,omitempty"`
+	ProductExternalIDs []string `url:"productExternalIds,omitempty,brackets"`
+	ProductArticle     []string `url:"productArticle,omitempty,brackets"`
+	ProductActive      int      `url:"productActive,omitempty"`
+	OfferExternalID    []string `url:"offerExternalId,omitempty,brackets"`
+	OfferXMLID         []string `url:"offerXmlId,omitempty,brackets"`
+	OfferArticle       []string `url:"offerArticle,omitempty,brackets"`
+	OfferActive        int      `url:"offerActive,omitempty"`
+	Details            int      `url:"details,omitempty"`
 }
 
 // ProductsGroupsFilter type.
@@ -368,6 +369,8 @@ type ProductsFilter struct {
 	ClassSegment     string            `url:"classSegment,omitempty"`
 	XMLID            string            `url:"xmlId,omitempty"`
 	ExternalID       string            `url:"externalId,omitempty"`
+	ExternalIDs      []string          `url:"externalIds,omitempty,brackets"`
+	Articles         []string          `url:"articles,omitempty,brackets"`
 	Manufacturer     string            `url:"manufacturer,omitempty"`
 	URL              string            `url:"url,omitempty"`
 	URLLike          string            `url:"urlLike,omitempty"`
@@ -511,6 +514,7 @@ type OffersFilter struct {
 	Ids         []int             `url:"ids,omitempty,brackets"` //nolint:revive
 	ExternalIDs []string          `url:"externalIds,omitempty,brackets"`
 	XMLIDs      []string          `url:"xmlIds,omitempty,brackets"`
+	Articles    []string          `url:"articles,omitempty,brackets"`
 	Name        string            `url:"name,omitempty"`
 	Sites       []string          `url:"sites,omitempty,brackets"`
 	Catalogs    []int             `url:"catalogs,omitempty,brackets"`

@@ -442,7 +442,8 @@ type DeliveryShipmentsResponse struct {
 // DeliveryCalculateResponse type.
 type DeliveryCalculateResponse struct {
 	SuccessfulResponse
-	Calculations []DeliveryCalculation `json:"calculations,omitempty"`
+	Calculations       []DeliveryCalculation       `json:"calculations,omitempty"`
+	FailedCalculations []FailedDeliveryCalculation `json:"failedCalculations,omitempty"`
 }
 
 // DeliveryShipmentResponse type.
