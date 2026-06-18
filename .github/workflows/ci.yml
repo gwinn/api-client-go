@@ -31,7 +31,7 @@ jobs:
       - name: Lint code with golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v1.62.2
+          version: v2.12.2
           only-new-issues: true
           skip-cache: true
           args: --build-tags=testutils
