@@ -168,6 +168,10 @@ linters:
       - std-error-handling
     rules:
       - linters:
+          - revive
+        path: filters\.go
+        text: "struct field Ids should be IDs"
+      - linters:
           - dupl
           - errcheck
           - errchkjson
